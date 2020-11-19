@@ -1,3 +1,6 @@
+#ifndef MESH_H
+#define MESH_H
+
 #include <GL/glu.h>
 #include <vector>
 #include <math.h>
@@ -15,3 +18,5 @@ class Mesh {
     std::vector<std::vector<std::vector<int> > > *elements;
     void LoadWaveFront(char *filename);
 };
+
+#endif

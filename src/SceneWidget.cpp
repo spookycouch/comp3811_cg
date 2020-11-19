@@ -1,15 +1,8 @@
-#include <GL/glu.h>
-#include <glm/glm.hpp>
 #include "SceneWidget.h"
-#include "Mesh.h"
-
-
-
-// LAZINESS. DEFINE STUFF AT FILE LEVEL
-Mesh *mesh;
 
 SceneWidget::SceneWidget(QWidget *parent){
-    mesh = new Mesh("head_eyed.obj");
+    meshes = new std::vector<Mesh>();
+    meshes->push_back(Mesh("head_eyed.obj"));
 }
 
 void SceneWidget::initializeGL() {
@@ -32,7 +25,8 @@ void SceneWidget::paintGL() {
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_DEPTH_TEST);
 
-    mesh->Draw();
+    for (std::vector<Mesh>::iterator mesh = meshes->begin(); mesh != meshes->end(); ++mesh)
+        mesh->Draw();
 
     glLoadIdentity();
     gluLookAt(0.,0.,2., 0.0,0.0,0.0, 0.0,1.0,0.0);
