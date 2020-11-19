@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
         : QWidget(parent) {
@@ -15,6 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
     // create the main widget
     scene_widget_ = new SceneWidget(this);
     window_layout_->addWidget(scene_widget_);
+
+    // framerate targetting 10hz
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), scene_widget_, SLOT(update()));
+    timer->start(10);
 }
 
 MainWindow::~MainWindow(){}

@@ -11,11 +11,13 @@ class MainWindow: public QWidget {
     MainWindow(QWidget *parent);
     ~MainWindow();
 
+    // menu bar members
     QMenuBar *menu_bar_;
     QMenu *file_menu_;
     QAction *action_quit_;
     QBoxLayout *window_layout_;
 
+    // the scene widget
     SceneWidget *scene_widget_;
 };
 

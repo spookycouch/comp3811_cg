@@ -10,5 +10,5 @@ QT += widgets opengl gui
 LIBS += -lGLU
 
 # Input
-HEADERS += MainWindow.h SceneWidget.h
-SOURCES += Main.cpp MainWindow.cpp SceneWidget.cpp
+HEADERS += MainWindow.h SceneWidget.h Mesh.h
+SOURCES += Main.cpp MainWindow.cpp SceneWidget.cpp Mesh.cpp

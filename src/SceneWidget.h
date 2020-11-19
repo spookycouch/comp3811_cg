@@ -12,6 +12,7 @@ class SceneWidget: public QGLWidget {
     void initializeGL();
     void resizeGL(int w, int h);
     void paintGL();
+
 };
 
 #endif
