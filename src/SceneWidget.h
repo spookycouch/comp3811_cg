@@ -11,6 +11,7 @@ class SceneWidget: public QGLWidget {
     SceneWidget(QWidget *parent);
 
     private:
+    QWidget *parent;
     std::vector<Mesh> *meshes;
 
     protected:
