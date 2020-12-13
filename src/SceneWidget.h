@@ -3,9 +3,15 @@
 
 #include <QGLWidget>
 
+struct materialStruct;
+
 class SceneWidget: public QGLWidget {
     public:
     SceneWidget(QWidget *parent);
+
+    private:
+        void square(const materialStruct* p_front);
+        void cylinder(const materialStruct* p_front); // taken from course notes
 
     protected:
     // OpenGL functions for init, resize and paint
