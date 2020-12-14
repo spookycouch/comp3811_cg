@@ -11,6 +11,7 @@ class SceneWidget: public QGLWidget {
 
     private:
         void square(const materialStruct* p_front);
+        void cube(const materialStruct* p_front);
         void cylinder(const materialStruct* p_front); // taken from course notes
 
     protected:

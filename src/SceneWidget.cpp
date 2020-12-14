@@ -73,6 +73,42 @@ void SceneWidget::square(const materialStruct* p_front) {
     glEnd();
 }
 
+void SceneWidget::cube(const materialStruct* p_front) {
+    glPushMatrix();
+
+    // top
+    glTranslatef(0,0,1);
+    square(p_front);
+    // front
+    glRotatef(90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(p_front);
+    // bottom
+    glRotatef(90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(p_front);
+    // back
+    glRotatef(90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(p_front);
+
+    glPushMatrix();
+
+    // right
+    glRotatef(90.,0,1,0);
+    glTranslatef(0,0,1);
+    square(p_front);
+
+    glPopMatrix();
+
+    // left
+    glRotatef(-90.,0,1,0);
+    glTranslatef(-1,0,0);
+    square(p_front);
+
+    glPopMatrix();
+}
+
 void SceneWidget::cylinder(const materialStruct* p_front) {
     glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
@@ -114,52 +150,93 @@ void SceneWidget::paintGL() {
 
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_DEPTH_TEST);
-    // glShadeModel(GL_FLAT);
 
 	glLoadIdentity();
     gluLookAt(1.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
+    // gluLookAt(0.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
     glPushMatrix();
+
+    // // set the light bulb
+	GLfloat light_pos[] = {0., 0., 4.5, 1.};
+	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+
 
     // house is a 6 metre cube origin at 0,0,0
     glScalef(6,6,6);
     glTranslatef(-0.5,-0.5,0.);
+
     glPushMatrix();
-
-    // set the light bulb
-	GLfloat light_pos[] = {0.5, 0.5, 0.75, 1.};
-	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-
-    // floor
-    square(&whiteShinyMaterials);
 
     // left wall
     glRotatef(90.,1,0,0);
     glRotatef(90.,0,1,0);
     square(&whiteShinyMaterials);
 
-    glPopMatrix();
-    glPushMatrix();
+    // floor
+    glRotatef(-90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(&whiteShinyMaterials);
 
     // right wall
-    glTranslatef(1,1,0);
-    glRotatef(-90.,0,0,1);
-    glRotatef(90.,1,0,0);
+    glRotatef(-90.,1,0,0);
+    glTranslatef(0,-1,0);
     square(&whiteShinyMaterials);
 
     glPopMatrix();
-    glPushMatrix();
 
     // front wall
     glTranslatef(0,1,0);
     glRotatef(90.,1,0,0);
-    glScalef(1,0.5,1);
+
+    glPushMatrix();
+
+    glScalef(1,0.25,1);
+    square(&whiteShinyMaterials);
+    glTranslatef(0,3,0);
     square(&whiteShinyMaterials);
 
     glPopMatrix();
+
+    glScalef(0.25,0.5,1);
+    glTranslatef(0,0.5,0);
+    square(&whiteShinyMaterials);
+    glTranslatef(3,0,0);
+    square(&whiteShinyMaterials);
+
+    
     glPopMatrix();
+    glPushMatrix();
+
+    // draw windows
+    glTranslatef(-1.65,2.85,1.35);
+    glPushMatrix();
+    glScalef(3,0.3,0.3);
+    cube(&brassMaterials);
+    glTranslatef(0,0,5);
+    cube(&brassMaterials);
+    glTranslatef(0,0,5);
+    cube(&brassMaterials);
+    glPopMatrix();
+    glScalef(0.3,0.3,3.3);
+    cube(&brassMaterials);
+    glTranslatef(5,0,0);
+    cube(&brassMaterials);
+    glTranslatef(5,0,0);
+    cube(&brassMaterials);
+
+    glPopMatrix();
+    glPushMatrix();
+
+    // draw the "background"
     glTranslatef(0.5,0.5,1.);
     glScalef(9,9,3);
     cylinder(&brassMaterials);
+
+    glPopMatrix();
+
+    // draw a cube in the corner
+    // glTranslatef(-3,0,0);
+    // cube(&brassMaterials);
 
     glFlush();
 }
