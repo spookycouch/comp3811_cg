@@ -32,6 +32,20 @@ static materialStruct whiteShinyMaterials = {
     100.0
 };
 
+static materialStruct glassMaterials = {
+    { 0.8, 0.9, 1.0, 1.0},
+    { 0.8, 0.9, 1.0, 0.2},
+    { 0.8, 0.9, 1.0, 1.0},
+    100.0
+};
+
+static materialStruct warmLightMaterials = {
+    { 1.0, 1.0, 0, 1.0},
+    { 1.0, 1.0, 0, 0.8},
+    { 1.0, 1.0, 0, 1.0},
+    100.0
+};
+
 SceneWidget::SceneWidget(QWidget *parent){}
 
 void SceneWidget::initializeGL() {
@@ -116,8 +130,8 @@ void SceneWidget::cylinder(const materialStruct* p_front) {
     glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
 
     float x0, x1, y0, y1;
-    float z_min = -1;
-    float z_max =  1;
+    float z_min = 0;
+    float z_max = 1;
     float delta_z = (z_max - z_min)/n_div;
 
     for (int i = 0; i < N; i++){
@@ -142,6 +156,60 @@ void SceneWidget::cylinder(const materialStruct* p_front) {
             glEnd();
         }
     }
+}
+
+
+void SceneWidget::sphere(const materialStruct* p_front){
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR,   p_front->specular);
+    glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
+
+    constexpr double pi = 3.14159265358979323846;
+    float phi_min = 0;
+    float phi_max = 2*pi;
+
+    float theta_min = -pi;
+    float theta_max = pi;
+
+    int n_theta = 20;
+    int n_phi   = 20;
+
+    float delta_phi   = (phi_max - phi_min)/n_phi;
+    float delta_theta = (theta_max - theta_min)/n_theta;
+
+    for (int i_phi = 0; i_phi < n_phi; i_phi++)
+        for (int i_theta = 0; i_theta < n_theta; i_theta++){
+
+            glBegin(GL_POLYGON);
+            float phi   = phi_min + i_phi*delta_phi;
+            float theta = theta_min + i_theta*delta_theta;
+
+            // NOTE: negated the normals from
+            // (x,y,0) to (-x,-y,0) so it reflects inwards
+            float x_0 = cos(phi)*sin(theta);
+            float y_0 = sin(phi)*sin(theta);
+            float z_0 = cos(theta);
+            glNormal3f(-x_0,-y_0,z_0);
+            glVertex3f(x_0,y_0,z_0);
+            float x_1 = cos(phi+delta_phi)*sin(theta);
+            float y_1 = sin(phi+delta_phi)*sin(theta);
+            float z_1 = cos(theta);
+            glNormal3f(-x_1,-y_1,z_1);
+            glVertex3f(x_1,y_1,z_1);
+            float x_2 = cos(phi+delta_phi)*sin(theta+delta_theta);
+            float y_2 = sin(phi+delta_phi)*sin(theta+delta_phi);
+            float z_2 = cos(theta + delta_theta);
+            glNormal3f(-x_2,-y_2,z_2);
+            glVertex3f(x_2,y_2,z_2);
+            float x_3 = cos(phi)*sin(theta);
+            float y_3 = sin(phi)*sin(theta);
+            float z_3 = cos(theta + delta_theta);
+            glNormal3f(-x_3,-y_3,z_3);
+            glVertex3f(x_3,y_3,z_3);
+            glEnd();
+        }
 }
 
 void SceneWidget::paintGL() {
@@ -223,6 +291,42 @@ void SceneWidget::paintGL() {
     cube(&brassMaterials);
     glTranslatef(5,0,0);
     cube(&brassMaterials);
+
+    glPopMatrix();
+    glPushMatrix();
+
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // window glass
+    glTranslatef(-1.5,3,1.35);
+    glRotatef(90,1,0,0);
+    glScalef(3,3,1);
+    square(&glassMaterials);
+
+    glPopMatrix();
+    glPushMatrix();
+
+    // light cable
+    glTranslatef(0,0,6);
+    glRotatef(180,1,0,0);
+    glPushMatrix();
+    glScalef(0.05,0.05,1.5);
+    cylinder(&brassMaterials);
+    glPopMatrix();
+
+    // draw the light first, then the bulb
+    glTranslatef(0,0,1.5);
+    glPushMatrix();
+    glScalef(0.1,0.1,0.2);
+    glTranslatef(0,0,1);
+    sphere(&warmLightMaterials);
+    glPopMatrix();
+    glScalef(0.25,0.25,0.25);
+    glTranslatef(0,0,1);
+    sphere(&glassMaterials);
+    glPopMatrix();
 
     glPopMatrix();
     glPushMatrix();
