@@ -14,6 +14,7 @@ class SceneWidget: public QGLWidget {
         void cube(const materialStruct* p_front);
         void cylinder(const materialStruct* p_front); // taken from course tutorials
         void sphere(const materialStruct* p_front ); // taken from course tutorials
+        void house();
 
     protected:
     // OpenGL functions for init, resize and paint

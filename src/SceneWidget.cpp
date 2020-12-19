@@ -18,17 +18,24 @@ typedef struct materialStruct {
 } materialStruct;
 
 
-static materialStruct brassMaterials = {
-    { 0.33, 0.22, 0.03, 1.0},
-    { 0.78, 0.57, 0.11, 1.0},
-    { 0.99, 0.91, 0.81, 1.0},
-    27.8
+static materialStruct woodMaterials = {
+    { 0.0, 0.0, 0.0, 1.0},
+    { 0.75, 0.5, 0.2, 1.0},
+    { 0.0, 0.0, 0.0, 1.0},
+    20.0
 };
 
-static materialStruct whiteShinyMaterials = {
+static materialStruct whitePaintMaterials = {
+    { 0.8, 0.8, 0.8, 1.0},
     { 1.0, 1.0, 1.0, 1.0},
-    { 1.0, 1.0, 1.0, 1.0},
-    { 1.0, 1.0, 1.0, 1.0},
+    { 0.8, 0.8, 0.8, 1.0},
+    100.0
+};
+
+static materialStruct blackPlasticMaterials = {
+    { 0.1, 0.1, 0.1, 1.0},
+    { 0.1, 0.1, 0.1, 1.0},
+    { 0.3, 0.3, 0.3, 1.0},
     100.0
 };
 
@@ -212,121 +219,115 @@ void SceneWidget::sphere(const materialStruct* p_front){
         }
 }
 
-void SceneWidget::paintGL() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_NORMALIZE);
-
-    glMatrixMode(GL_MODELVIEW);
-    glEnable(GL_DEPTH_TEST);
-
-	glLoadIdentity();
-    gluLookAt(1.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
-    // gluLookAt(0.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
-    glPushMatrix();
-
-    // // set the light bulb
-	GLfloat light_pos[] = {0., 0., 4.5, 1.};
-	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-
-
-    // house is a 6 metre cube origin at 0,0,0
-    glScalef(6,6,6);
-    glTranslatef(-0.5,-0.5,0.);
-
+void SceneWidget::house() {
     glPushMatrix();
 
     // left wall
     glRotatef(90.,1,0,0);
     glRotatef(90.,0,1,0);
-    square(&whiteShinyMaterials);
-
+    square(&whitePaintMaterials);
     // floor
     glRotatef(-90.,1,0,0);
     glTranslatef(0,-1,0);
-    square(&whiteShinyMaterials);
-
+    square(&whitePaintMaterials);
     // right wall
     glRotatef(-90.,1,0,0);
     glTranslatef(0,-1,0);
-    square(&whiteShinyMaterials);
-
+    square(&whitePaintMaterials);
     glPopMatrix();
-
-    // front wall
+    glPushMatrix();
+    // front wall (4 panels)
     glTranslatef(0,1,0);
     glRotatef(90.,1,0,0);
-
     glPushMatrix();
-
     glScalef(1,0.25,1);
-    square(&whiteShinyMaterials);
+    square(&whitePaintMaterials);
     glTranslatef(0,3,0);
-    square(&whiteShinyMaterials);
-
+    square(&whitePaintMaterials);
     glPopMatrix();
-
     glScalef(0.25,0.5,1);
     glTranslatef(0,0.5,0);
-    square(&whiteShinyMaterials);
+    square(&whitePaintMaterials);
     glTranslatef(3,0,0);
-    square(&whiteShinyMaterials);
+    square(&whitePaintMaterials);
 
-    
     glPopMatrix();
     glPushMatrix();
 
     // draw windows
-    glTranslatef(-1.65,2.85,1.35);
+    glTranslatef(0.25,1,0.25);
     glPushMatrix();
-    glScalef(3,0.3,0.3);
-    cube(&brassMaterials);
-    glTranslatef(0,0,5);
-    cube(&brassMaterials);
-    glTranslatef(0,0,5);
-    cube(&brassMaterials);
-    glPopMatrix();
-    glScalef(0.3,0.3,3.3);
-    cube(&brassMaterials);
-    glTranslatef(5,0,0);
-    cube(&brassMaterials);
-    glTranslatef(5,0,0);
-    cube(&brassMaterials);
-
-    glPopMatrix();
+    glTranslatef(-0.025,-0.025,-0.025);
     glPushMatrix();
-
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glScalef(0.5,0.05,0.05);
+    cube(&woodMaterials);
+    glTranslatef(0,0,5);
+    cube(&woodMaterials);
+    glTranslatef(0,0,5);
+    cube(&woodMaterials);
+    glPopMatrix();
+    glScalef(0.05,0.05,0.55);
+    cube(&woodMaterials);
+    glTranslatef(5,0,0);
+    cube(&woodMaterials);
+    glTranslatef(5,0,0);
+    cube(&woodMaterials);
 
     // window glass
-    glTranslatef(-1.5,3,1.35);
+    glPopMatrix();
     glRotatef(90,1,0,0);
-    glScalef(3,3,1);
+    glScalef(0.5,0.5,1);
     square(&glassMaterials);
 
     glPopMatrix();
     glPushMatrix();
 
     // light cable
-    glTranslatef(0,0,6);
+    glTranslatef(0.5,0.5,1);
     glRotatef(180,1,0,0);
     glPushMatrix();
-    glScalef(0.05,0.05,1.5);
-    cylinder(&brassMaterials);
+    glScalef(0.005,0.005,0.3);
+    cylinder(&blackPlasticMaterials);
     glPopMatrix();
 
     // draw the light first, then the bulb
-    glTranslatef(0,0,1.5);
+    glTranslatef(0,0,0.25);
     glPushMatrix();
-    glScalef(0.1,0.1,0.2);
+    glScalef(0.01,0.01,0.03);
     glTranslatef(0,0,1);
     sphere(&warmLightMaterials);
     glPopMatrix();
-    glScalef(0.25,0.25,0.25);
+    glScalef(0.025,0.025,0.04);
     glTranslatef(0,0,1);
     sphere(&glassMaterials);
+
     glPopMatrix();
+}
+
+void SceneWidget::paintGL() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_NORMALIZE);
+
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glLoadIdentity();
+    gluLookAt(1.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
+    // gluLookAt(0.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
+    glPushMatrix();
+
+    // scale by 6
+    glScalef(6,6,6);
+
+    // // set the light bulb
+	GLfloat light_pos[] = {0, 0., 0.75, 1.};
+	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+
+    // house centered at 0,0,0
+    glTranslatef(-0.5,-0.5,0.);
+    house();
 
     glPopMatrix();
     glPushMatrix();
@@ -334,13 +335,13 @@ void SceneWidget::paintGL() {
     // draw the "background"
     glTranslatef(0.5,0.5,1.);
     glScalef(9,9,3);
-    cylinder(&brassMaterials);
+    cylinder(&blackPlasticMaterials);
 
     glPopMatrix();
 
     // draw a cube in the corner
     // glTranslatef(-3,0,0);
-    // cube(&brassMaterials);
+    // cube(&woodMaterials);
 
     glFlush();
 }
