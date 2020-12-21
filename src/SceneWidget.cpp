@@ -236,19 +236,34 @@ void SceneWidget::house() {
     square(&whitePaintMaterials);
     glPopMatrix();
     glPushMatrix();
-    // front wall (4 panels)
+    // front wall
     glTranslatef(0,1,0);
     glRotatef(90.,1,0,0);
+    // 4 rectangular panels,
+    // adjacent to windows
     glPushMatrix();
-    glScalef(1,0.25,1);
+    glTranslatef(0.25,0,0);
+    glScalef(0.5,0.25,1);
     square(&whitePaintMaterials);
     glTranslatef(0,3,0);
     square(&whitePaintMaterials);
     glPopMatrix();
+    glPushMatrix();
     glScalef(0.25,0.5,1);
     glTranslatef(0,0.5,0);
     square(&whitePaintMaterials);
     glTranslatef(3,0,0);
+    square(&whitePaintMaterials);
+    // 4 square panels,
+    // diagonal to windows
+    glPopMatrix();
+    glScalef(0.25,0.25,1);
+    square(&whitePaintMaterials);
+    glTranslatef(3,0,0);
+    square(&whitePaintMaterials);
+    glTranslatef(0,3,0);
+    square(&whitePaintMaterials);
+    glTranslatef(-3,0,0);
     square(&whitePaintMaterials);
 
     glPopMatrix();
@@ -257,23 +272,35 @@ void SceneWidget::house() {
     // draw windows
     glTranslatef(0.25,1,0.25);
     glPushMatrix();
-    glTranslatef(-0.025,-0.025,-0.025);
-    glPushMatrix();
-    glScalef(0.5,0.05,0.05);
-    cube(&woodMaterials);
-    glTranslatef(0,0,5);
-    cube(&woodMaterials);
-    glTranslatef(0,0,5);
-    cube(&woodMaterials);
-    glPopMatrix();
-    glScalef(0.05,0.05,0.55);
-    cube(&woodMaterials);
-    glTranslatef(5,0,0);
-    cube(&woodMaterials);
-    glTranslatef(5,0,0);
-    cube(&woodMaterials);
+    glTranslatef(0,-0.025,0);
+    // window "bones"
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            glPushMatrix();
+            glTranslatef(0.225 * i, 0, 0.225 * j);
+            glScalef(0.225,0.05,0.05);
+            cube(&woodMaterials);
 
-    // window glass
+            glPopMatrix();
+            glPushMatrix();
+
+            glTranslatef(0.225 * j, 0, 0.225 * i);
+            glScalef(0.05,0.05,0.225);
+            cube(&woodMaterials);
+            glPopMatrix();
+        }
+    }
+    // window "joints"
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            glPushMatrix();
+            glTranslatef(0.225 * i, 0, 0.225 * j);
+            glScalef(0.05,0.05,0.05);
+            cube(&woodMaterials);
+            glPopMatrix();
+        }
+    }
+    // window glass (alpha blend)
     glPopMatrix();
     glRotatef(90,1,0,0);
     glScalef(0.5,0.5,1);
@@ -289,13 +316,13 @@ void SceneWidget::house() {
     glScalef(0.005,0.005,0.3);
     cylinder(&blackPlasticMaterials);
     glPopMatrix();
-
-    // draw the light first, then the bulb
+    // draw the light (alpha blend)
     glTranslatef(0,0,0.25);
     glPushMatrix();
     glScalef(0.01,0.01,0.03);
     glTranslatef(0,0,1);
     sphere(&warmLightMaterials);
+    // draw the glass bulb (alpha blend)
     glPopMatrix();
     glScalef(0.025,0.025,0.04);
     glTranslatef(0,0,1);
@@ -314,7 +341,8 @@ void SceneWidget::paintGL() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glLoadIdentity();
-    gluLookAt(1.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
+    gluLookAt(1.,-1.,1.5, 0.0,0.0,0.0, 0.0,0.0,1.0);
+    // gluLookAt(0.,0.25,1., 0.0,0.0,0.0, 0.0,1,0);
     // gluLookAt(0.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0);
     glPushMatrix();
 
@@ -338,10 +366,5 @@ void SceneWidget::paintGL() {
     cylinder(&blackPlasticMaterials);
 
     glPopMatrix();
-
-    // draw a cube in the corner
-    // glTranslatef(-3,0,0);
-    // cube(&woodMaterials);
-
     glFlush();
 }
