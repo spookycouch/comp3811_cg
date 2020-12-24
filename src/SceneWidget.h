@@ -44,6 +44,13 @@ class SceneWidget: public QGLWidget {
     **/
     void house();
 
+
+    private:
+    float light_bulb_angle;
+    float light_bulb_speed = 0.05;
+    float light_bulb_time = 0.0;
+
+
     protected:
     // OpenGL functions for init, resize and paint
     void initializeGL();

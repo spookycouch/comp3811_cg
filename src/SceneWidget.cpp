@@ -288,6 +288,7 @@ void SceneWidget::house() {
     // light cable
     glTranslatef(0.5,0.5,1);
     glRotatef(180,1,0,0);
+    glRotatef(light_bulb_angle, 0, 1, 0);
     glPushMatrix();
     glScalef(0.005,0.005,0.3);
     cylinder(&blackPlasticMaterials);
@@ -325,11 +326,17 @@ void SceneWidget::paintGL() {
     glScalef(6,6,6);
     glPushMatrix();
 
+    // light bulb rotation
+    light_bulb_time += light_bulb_speed;
+    if (light_bulb_time >= 2 * PI)
+        light_bulb_time -= 2 * PI; // prevent overflow
+    light_bulb_angle = sin(light_bulb_time) * 60;
+
     // position the lights
     glPushMatrix();
     glTranslatef(0,0,1);
-    glTranslatef(0,0,-0.275);
-    GLfloat light_pos[] = {0, 0, 0, 1.};
+    glRotatef(-light_bulb_angle, 0, 1, 0);
+    GLfloat light_pos[] = {0, 0, -0.275, 1.};
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     glLightfv(GL_LIGHT1, GL_POSITION, light_pos);
     glPopMatrix();

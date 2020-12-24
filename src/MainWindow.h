@@ -4,6 +4,9 @@
 #include <QGLWidget>
 #include <QMenuBar>
 #include <QBoxLayout>
+#include <QLabel>
+#include <QSlider>
+#include <QTimer>
 #include "SceneWidget.h"
 
 class MainWindow: public QWidget {
@@ -14,9 +17,17 @@ class MainWindow: public QWidget {
     QMenuBar *menu_bar_;
     QMenu *file_menu_;
     QAction *action_quit_;
-    QBoxLayout *window_layout_;
 
+    QHBoxLayout *window_layout_;
     SceneWidget *scene_widget_;
+
+    QVBoxLayout *user_layout_;
+    QLabel *light_bulb_amp_label;
+    QSlider *light_bulb_amp_slider;
+    QLabel *light_bulb_period_label;
+    QSlider *light_bulb_period_slider;
+
+    QTimer* timer;
 };
 
 #endif
