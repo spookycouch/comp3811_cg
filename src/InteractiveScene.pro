@@ -7,7 +7,7 @@ TARGET = InteractiveScene
 INCLUDEPATH += . /opt/local/include
 
 QT += widgets opengl gui 
-LIBS += -lGLU
+LIBS += -lGLU -lglut
 
 # Input
 HEADERS += MainWindow.h SceneWidget.h
