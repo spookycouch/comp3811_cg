@@ -21,23 +21,23 @@ typedef struct materialStruct {
 
 static materialStruct woodMaterials = {
     { 0.0, 0.0, 0.0, 1.0},
-    { 0.75, 0.5, 0.2, 1.0},
+    { 0.6, 0.3, 0.15, 1.0},
     { 0.0, 0.0, 0.0, 1.0},
     20.0
 };
 
 static materialStruct whitePaintMaterials = {
-    { 0.2, 0.2, 0.2, 1.0},
-    { 1.0, 1.0, 1.0, 1.0},
-    { 0.8, 0.8, 0.8, 1.0},
-    100.0
+    { 0.0, 0.0, 0.0, 1.0},
+    { 0.6, 0.6, 0.6, 1.0},
+    { 0.5, 0.5, 0.5, 1.0},
+    50.0
 };
 
 static materialStruct blackPlasticMaterials = {
+    { 0.0, 0.0, 0.0, 1.0},
     { 0.1, 0.1, 0.1, 1.0},
-    { 0.1, 0.1, 0.1, 1.0},
-    { 0.3, 0.3, 0.3, 1.0},
-    100.0
+    { 0.6, 0.6, 0.6, 1.0},
+    50.0
 };
 
 static materialStruct glassMaterials = {
@@ -72,34 +72,65 @@ void SceneWidget::resizeGL(int w, int h) {
     glLoadIdentity();
 
     glEnable(GL_LIGHTING);
+    GLfloat light_diffuse[] = {0.5, 0.5, 0.5, 1};
+    GLfloat light_specular[] = {1, 1, 1, 1};
+    GLfloat light_linear_atten = 0.3;
+    GLfloat quadratic_linear_atten = 0.1;
+
+    // light 0 (room illumination)
     glEnable(GL_LIGHT0);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &light_linear_atten);
+    glLightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, &quadratic_linear_atten);
+
+    light_diffuse[0] = 1;
+    light_diffuse[1] = 1;
+    light_diffuse[2] = 1;
+    light_linear_atten = 0.9;
+    quadratic_linear_atten = 0.9;
+
+    // light 1 (light bulb glow)
+    glEnable(GL_LIGHT1);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, &light_linear_atten);
+    glLightfv(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, &quadratic_linear_atten);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-10.0,10.0, -10.0,10.0, -10.0,10.0);
-    // glOrtho(-1.0,1.0, -1.0,1.0, -0.0,6.0); // light bulb
-    // glFrustum(-1.0,1.0, -1.0,1.0, 1.5,20.0);
+    glFrustum(-1.0,1.0, -1.0,1.0, 1.5,20.0);
 }
 
-void SceneWidget::square(const materialStruct* p_front) {
+void SceneWidget::square(const materialStruct* p_front, int n_div=1) {
     glMaterialfv(GL_FRONT, GL_AMBIENT,  p_front->ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE,  p_front->diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR, p_front->specular);
     glMaterialf(GL_FRONT, GL_SHININESS, p_front->shininess);
+    // float n_div = 10.0;
+    float step_size = 1.0/n_div;
 
-    glBegin(GL_POLYGON);
-    glVertex3f(0,0,0);
-    glNormal3f(0,0,1);
+    for (int i = 0; i < n_div; ++i)
+        for (int j = 0; j < n_div; ++j)
+        {
+            float x0 = i * step_size;
+            float y0 = j * step_size;
+            float x1 = x0 + step_size;
+            float y1 = y0 + step_size;
 
-    glVertex3f(1,0,0);
-    glNormal3f(0,0,1);
+            glBegin(GL_POLYGON);
+            glVertex3f(x0,y0,0);
+            glNormal3f(0,0,1);
 
-    glVertex3f(1,1,0);
-    glNormal3f(0,0,1);
+            glVertex3f(x1,y0,0);
+            glNormal3f(0,0,1);
 
-    glVertex3f(0,1,0);
-    glNormal3f(0,0,1);
-    glEnd();
+            glVertex3f(x1,y1,0);
+            glNormal3f(0,0,1);
+
+            glVertex3f(x0,y1,0);
+            glNormal3f(0,0,1);
+            glEnd();
+        }
 }
 
 void SceneWidget::cube(const materialStruct* p_front) {
@@ -157,7 +188,7 @@ void SceneWidget::sphere(const materialStruct* p_front){
     glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
     GLUquadric * quad = gluNewQuadric();
     gluQuadricOrientation(quad, GLU_INSIDE);
-    gluSphere(quad, 1, 8, 8);
+    gluSphere(quad, 1, 32, 32);
 }
 
 void SceneWidget::house() {
@@ -166,18 +197,22 @@ void SceneWidget::house() {
     // left wall
     glRotatef(90.,1,0,0);
     glRotatef(90.,0,1,0);
-    square(&whitePaintMaterials);
+    square(&whitePaintMaterials, 5);
     // floor
     glRotatef(-90.,1,0,0);
     glTranslatef(0,-1,0);
-    square(&whitePaintMaterials);
+    square(&woodMaterials, 5);
     // right wall
     glRotatef(-90.,1,0,0);
     glTranslatef(0,-1,0);
-    square(&whitePaintMaterials);
+    square(&whitePaintMaterials, 5);
+    // top wall
+    glRotatef(-90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(&whitePaintMaterials, 5);
+    // front wall
     glPopMatrix();
     glPushMatrix();
-    // front wall
     glTranslatef(0,1,0);
     glRotatef(90.,1,0,0);
     // 4 rectangular panels,
@@ -258,7 +293,6 @@ void SceneWidget::house() {
     cylinder(&blackPlasticMaterials);
     glPopMatrix();
 
-    // TODO: use glusphere
     // draw the light (alpha blend)
     glTranslatef(0,0,0.25);
     glPushMatrix();
@@ -284,31 +318,34 @@ void SceneWidget::paintGL() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glLoadIdentity();
-    gluLookAt(1.0,-1.0,1.5, 0.0,0.0,0.0, 0.0,0.0,1.0);
-    // gluLookAt(1.0,-1.0,4.5, 0.0,0.0,4.5, 0.0,0.0,1.0); // light bulb view
-    // gluLookAt(2.,-7.5,3,0.,0.,3.,0.,0.,1.); // good perspective view
-    // gluLookAt(0.,-1.,1., 0.0,0.0,0.0, 0.0,0.0,1.0); // top view
+    gluLookAt(1.,-5.5,3,0.,0.,3.,0.,0.,1.);
     glPushMatrix();
 
     // scale by 6
     glScalef(6,6,6);
+    glPushMatrix();
 
-    // // set the light bulb
-	GLfloat light_pos[] = {0, 0., 0.725, 1.};
-	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    // position the lights
+    glPushMatrix();
+    glTranslatef(0,0,1);
+    glTranslatef(0,0,-0.275);
+    GLfloat light_pos[] = {0, 0, 0, 1.};
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_pos);
+    glPopMatrix();
+
+    // draw the "background"
+    glPushMatrix();
+    glTranslatef(0.5,0.5,0);
+    glScalef(1.5,1.5,1.5);
+    cylinder(&blackPlasticMaterials);
+    glPopMatrix();
 
     // house centered at 0,0,0
     glTranslatef(-0.5,-0.5,0.);
     house();
 
     glPopMatrix();
-    glPushMatrix();
-
-    // draw the "background"
-    glTranslatef(0.5,0.5,1.);
-    glScalef(9,9,3);
-    cylinder(&blackPlasticMaterials);
-
     glPopMatrix();
     glFlush();
 }
