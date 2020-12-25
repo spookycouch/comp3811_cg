@@ -18,12 +18,28 @@ MainWindow::MainWindow(QWidget *parent)
     scene_widget_->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     window_layout_->addWidget(scene_widget_);
 
-    // create user interactivity items
+
+    /** Create user interactivity items
+     *
+     */
     QVBoxLayout * user_layout_ = new QVBoxLayout();
+
+    // light bulb amplitude
     light_bulb_amp_label = new QLabel("Light bulb amplitude:");
     light_bulb_amp_slider = new QSlider(Qt::Horizontal);
+    light_bulb_amp_slider->setValue(60);
+    light_bulb_amp_slider->setRange(0,85);
+    // connect(light_bulb_amp_slider, SIGNAL(sliderMoved(int)), scene_widget_, SLOT(set_light_bulb_amplitude(int)));
+    connect(light_bulb_amp_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_light_bulb_amplitude);
+
+    // light bulb period
     light_bulb_period_label = new QLabel("Light bulb period:");
     light_bulb_period_slider = new QSlider(Qt::Horizontal);
+    light_bulb_period_slider->setRange(10,30);
+    light_bulb_period_slider->setValue(20);
+    // connect(light_bulb_period_slider, SIGNAL(sliderMoved(int)), scene_widget_, SLOT(set_light_bulb_period(int)));
+    connect(light_bulb_period_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_light_bulb_period);
+
 
     // build user menu
     user_layout_->addWidget(light_bulb_amp_label);
@@ -36,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     // timer for frame update
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), scene_widget_, SLOT(update()));
-    timer->start(10);
+    timer->start(10); // aim for 100fps haha
 }
 
 MainWindow::~MainWindow(){}

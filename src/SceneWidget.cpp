@@ -309,6 +309,14 @@ void SceneWidget::house() {
     glPopMatrix();
 }
 
+void SceneWidget::set_light_bulb_period(int value) {
+    light_bulb_speed = 1.0/value;
+}
+
+void SceneWidget::set_light_bulb_amplitude(int value) {
+    light_bulb_amplitude = value;
+}
+
 void SceneWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_NORMALIZE);
@@ -330,7 +338,7 @@ void SceneWidget::paintGL() {
     light_bulb_time += light_bulb_speed;
     if (light_bulb_time >= 2 * PI)
         light_bulb_time -= 2 * PI; // prevent overflow
-    light_bulb_angle = sin(light_bulb_time) * 60;
+    light_bulb_angle = sin(light_bulb_time) * light_bulb_amplitude;
 
     // position the lights
     glPushMatrix();

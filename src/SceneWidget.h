@@ -45,8 +45,14 @@ class SceneWidget: public QGLWidget {
     void house();
 
 
+    public slots:
+    void set_light_bulb_period(int value);
+    void set_light_bulb_amplitude(int value);
+
+
     private:
     float light_bulb_angle;
+    float light_bulb_amplitude = 60;
     float light_bulb_speed = 0.05;
     float light_bulb_time = 0.0;
 
