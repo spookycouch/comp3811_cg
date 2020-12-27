@@ -55,6 +55,7 @@ class SceneWidget: public QGLWidget {
     public slots:
     void set_light_bulb_period(int value);
     void set_light_bulb_amplitude(int value);
+    void set_background_speed(int value);
 
 
     private:
@@ -62,6 +63,8 @@ class SceneWidget: public QGLWidget {
     float light_bulb_amplitude = 60;
     float light_bulb_speed = 0.05;
     float light_bulb_time = 0.0;
+    float background_rotation = 0.0;
+    float background_speed = 1.0;
     // textures
     Image* wall_texture;
     Image* wood_texture;

@@ -52,7 +52,7 @@ static materialStruct warmLightMaterials = {
 };
 
 static materialStruct backgroundMaterials = {
-    { 0.25, 0.25, 0.25, 1.0},
+    { 0.35, 0.35, 0.35, 1.0},
     { 0, 0, 0, 1.0},
     { 0, 0, 0, 1.0},
     100.0
@@ -76,7 +76,8 @@ void SceneWidget::initializeGL() {
     // load textures
     wall_texture = new Image("textures/Finishes.Painting.Paint.White.Flaking.jpg");
     wood_texture = new Image("textures/beechwood_mysticBrown.png");
-    world_texture = new Image("textures/Mercator-projection.ppm");
+    world_texture = new Image("textures/Marc_Dekamps.ppm");
+    // world_texture = new Image("textures/Mercator-projection.ppm");
 }
 
 void SceneWidget::resizeGL(int w, int h) {
@@ -121,6 +122,12 @@ void SceneWidget::resizeGL(int w, int h) {
     glLightfv(GL_LIGHT2, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT2, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT2, GL_POSITION, light_pos);
+
+    // texture parameters
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -219,6 +226,7 @@ void SceneWidget::cylinder(const materialStruct* p_front, int N=8, int n_div=1) 
     glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
 
     float x0, x1, y0, y1;
+    float tx0, tx1, ty0, ty1;
     float z_min = 0;
     float z_max = 1;
     float delta_z = (z_max - z_min)/n_div;
@@ -230,30 +238,34 @@ void SceneWidget::cylinder(const materialStruct* p_front, int N=8, int n_div=1) 
             y0 = sin(2*i*PI/N);
             y1 = sin(2*(i+1)*PI/N);
 
-            // NOTE: negated the normals from
-            // (x,y,0) to (-x,-y,0) so it reflects inwards
+            // flip texture x coords
+            tx0 = 1;
+            ty0 = 0;
+            tx1 = 0;
+            ty1 = 1;
+
+            // NOTE: drawn clockwise to face inwards
             float z = z_min + i_z*delta_z;
             glBegin(GL_POLYGON);
-                glTexCoord2f(0, 0);
+                glTexCoord2f(tx0, ty0);
                 glVertex3f(x0,y0,z);
                 glNormal3f(-x0,-y0,0);
 
-                glTexCoord2f(1, 0);
-                glVertex3f(x1,y1,z);
-                glNormal3f(-x1,-y1,0);
+                glTexCoord2f(tx0, ty1);
+                glVertex3f(x0,y0,z+delta_z);
+                glNormal3f(-x0,-y0,0);
 
-                glTexCoord2f(1, 1);
+                glTexCoord2f(tx1, ty1);
                 glVertex3f(x1,y1,z+delta_z);
                 glNormal3f(-x1,-y1,0);
 
-                glTexCoord2f(0, 1);
-                glVertex3f(x0,y0,z+delta_z);
-                glNormal3f(-x0,-y0,0);
+                glTexCoord2f(tx1, ty0);
+                glVertex3f(x1,y1,z);
+                glNormal3f(-x1,-y1,0);
             glEnd();
         }
     }
 }
-
 
 void SceneWidget::sphere(const materialStruct* p_front){
 
@@ -270,10 +282,6 @@ void SceneWidget::house() {
     glPushMatrix(); // D0
 
     glEnable(GL_TEXTURE_2D);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // floor
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
@@ -425,11 +433,10 @@ void SceneWidget::house() {
 void SceneWidget::background() {
     glPushMatrix();
     glEnable(GL_TEXTURE_2D);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, world_texture->Width(), world_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, world_texture->imageField());
+
+    glRotatef(background_rotation, 0, 0, 1);
+    glTranslatef(0,0,-0.2);
     glScalef(1.5,1.5,1.5);
     cylinder(&backgroundMaterials);
     glDisable(GL_TEXTURE_2D);
@@ -444,6 +451,10 @@ void SceneWidget::set_light_bulb_amplitude(int value) {
     light_bulb_amplitude = value;
 }
 
+void SceneWidget::set_background_speed(int value) {
+    background_speed = value/2.0;
+}
+
 void SceneWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_NORMALIZE);
@@ -454,7 +465,7 @@ void SceneWidget::paintGL() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glLoadIdentity();
-    // gluLookAt(0,0,15,0.,3.,3.,0.,1.,1.);
+    // gluLookAt(0,-3,15,0.,3.,3.,0.,1.,1.);
     gluLookAt(1.,-5.5,3,0.,0.,3.,0.,0.,1.);
     glPushMatrix();
 
@@ -467,6 +478,9 @@ void SceneWidget::paintGL() {
     if (light_bulb_time >= 2 * PI)
         light_bulb_time -= 2 * PI; // prevent overflow
     light_bulb_angle = sin(light_bulb_time) * light_bulb_amplitude;
+
+    // background rotation
+    background_rotation += background_speed;
 
     // position the lights
     glPushMatrix();

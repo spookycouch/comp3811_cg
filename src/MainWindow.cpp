@@ -40,12 +40,21 @@ MainWindow::MainWindow(QWidget *parent)
     // connect(light_bulb_period_slider, SIGNAL(sliderMoved(int)), scene_widget_, SLOT(set_light_bulb_period(int)));
     connect(light_bulb_period_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_light_bulb_period);
 
+    // background speed
+    background_speed_label = new QLabel("Background speed:");
+    background_speed_slider = new QSlider(Qt::Horizontal);
+    background_speed_slider->setRange(-6,6);
+    background_speed_slider->setValue(2);
+    connect(background_speed_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_background_speed);
+
 
     // build user menu
     user_layout_->addWidget(light_bulb_amp_label);
     user_layout_->addWidget(light_bulb_amp_slider);
     user_layout_->addWidget(light_bulb_period_label);
     user_layout_->addWidget(light_bulb_period_slider);
+    user_layout_->addWidget(background_speed_label);
+    user_layout_->addWidget(background_speed_slider);
     user_layout_->addStretch(1);
     window_layout_->addLayout(user_layout_);
 

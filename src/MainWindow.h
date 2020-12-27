@@ -14,18 +14,20 @@ class MainWindow: public QWidget {
     MainWindow(QWidget *parent);
     ~MainWindow();
 
-    QMenuBar *menu_bar_;
-    QMenu *file_menu_;
-    QAction *action_quit_;
+    QMenuBar* menu_bar_;
+    QMenu* file_menu_;
+    QAction* action_quit_;
 
-    QHBoxLayout *window_layout_;
-    SceneWidget *scene_widget_;
+    QHBoxLayout* window_layout_;
+    SceneWidget* scene_widget_;
 
-    QVBoxLayout *user_layout_;
-    QLabel *light_bulb_amp_label;
-    QSlider *light_bulb_amp_slider;
-    QLabel *light_bulb_period_label;
-    QSlider *light_bulb_period_slider;
+    QVBoxLayout* user_layout_;
+    QLabel* light_bulb_amp_label;
+    QSlider* light_bulb_amp_slider;
+    QLabel* light_bulb_period_label;
+    QSlider* light_bulb_period_slider;
+    QLabel* background_speed_label;
+    QSlider* background_speed_slider;
 
     QTimer* timer;
 };
