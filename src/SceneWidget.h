@@ -2,6 +2,7 @@
 #define __GL_POLYGON_WIDGET_H__ 1
 
 #include <QGLWidget>
+#include "utils/Image.h"
 
 struct materialStruct;
 
@@ -29,7 +30,7 @@ class SceneWidget: public QGLWidget {
      * taken from COMP3811 tutorials
      * a cylinder of origin at the centre with z=0
     **/
-    void cylinder(const materialStruct* p_front);
+    void cylinder(const materialStruct* p_front, int N, int n_div);
 
 
     /** Sphere
@@ -39,10 +40,15 @@ class SceneWidget: public QGLWidget {
 
 
     /** House
-     * Background for our complex visual scene, comprised of
+     * Setting for our complex visual scene, comprised of
      * instances of squares, cubes, cylinders and spheres.
     **/
     void house();
+
+    /** Background
+     * Background viewable from the window of our house
+     */
+    void background();
 
 
     public slots:
@@ -55,7 +61,10 @@ class SceneWidget: public QGLWidget {
     float light_bulb_amplitude = 60;
     float light_bulb_speed = 0.05;
     float light_bulb_time = 0.0;
-
+    // textures
+    Image* wall_texture;
+    Image* wood_texture;
+    Image* world_texture;
 
     protected:
     // OpenGL functions for init, resize and paint

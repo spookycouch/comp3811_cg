@@ -6,8 +6,6 @@
 #include <iostream>
 // static const int N        = 100; // This determines the number of faces of the cylinder
 // static const int n_div   =  100;  // This determines the fineness of the cylinder along its length
-static const int N        = 6; // This determines the number of faces of the cylinder
-static const int n_div   =  1;  // This determines the fineness of the cylinder along its length
 static const float PI = 3.1415926535;
 
 // Setting up material properties
@@ -63,6 +61,11 @@ void SceneWidget::initializeGL() {
     int argc = 0;
     char * argv = {};
     glutInit(&argc, &argv);
+
+    // load textures
+    wall_texture = new Image("textures/Finishes.Painting.Paint.White.Flaking.jpg");
+    wood_texture = new Image("textures/beechwood_mysticBrown.png");
+    world_texture = new Image("textures/Mercator-projection.ppm");
 }
 
 void SceneWidget::resizeGL(int w, int h) {
@@ -118,17 +121,21 @@ void SceneWidget::square(const materialStruct* p_front, int n_div=1) {
             float y1 = y0 + step_size;
 
             glBegin(GL_POLYGON);
-            glVertex3f(x0,y0,0);
-            glNormal3f(0,0,1);
+                glTexCoord2f(x0, y0);
+                glVertex3f(x0,y0,0);
+                glNormal3f(0,0,1);
 
-            glVertex3f(x1,y0,0);
-            glNormal3f(0,0,1);
+                glTexCoord2f(x1, y0);
+                glVertex3f(x1,y0,0);
+                glNormal3f(0,0,1);
 
-            glVertex3f(x1,y1,0);
-            glNormal3f(0,0,1);
+                glTexCoord2f(x1, y1);
+                glVertex3f(x1,y1,0);
+                glNormal3f(0,0,1);
 
-            glVertex3f(x0,y1,0);
-            glNormal3f(0,0,1);
+                glTexCoord2f(x0, y1);
+                glVertex3f(x0,y1,0);
+                glNormal3f(0,0,1);
             glEnd();
         }
 }
@@ -166,7 +173,7 @@ void SceneWidget::cube(const materialStruct* p_front) {
 }
 
 
-void SceneWidget::cylinder(const materialStruct* p_front) {
+void SceneWidget::cylinder(const materialStruct* p_front, int N=8, int n_div=1) {
     glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR,   p_front->specular);
@@ -188,14 +195,21 @@ void SceneWidget::cylinder(const materialStruct* p_front) {
             // (x,y,0) to (-x,-y,0) so it reflects inwards
             float z = z_min + i_z*delta_z;
             glBegin(GL_POLYGON);
-            glVertex3f(x0,y0,z);
-            glNormal3f(-x0,-y0,0);
-            glVertex3f(x1,y1,z);
-            glNormal3f(-x1,-y1,0);
-            glVertex3f(x1,y1,z+delta_z);
-            glNormal3f(-x1,-y1,0);
-            glVertex3f(x0,y0,z+delta_z);
-            glNormal3f(-x0,-y0,0);
+                glTexCoord2f(0, 0);
+                glVertex3f(x0,y0,z);
+                glNormal3f(-x0,-y0,0);
+
+                glTexCoord2f(1, 0);
+                glVertex3f(x1,y1,z);
+                glNormal3f(-x1,-y1,0);
+
+                glTexCoord2f(1, 1);
+                glVertex3f(x1,y1,z+delta_z);
+                glNormal3f(-x1,-y1,0);
+
+                glTexCoord2f(0, 1);
+                glVertex3f(x0,y0,z+delta_z);
+                glNormal3f(-x0,-y0,0);
             glEnd();
         }
     }
@@ -216,15 +230,29 @@ void SceneWidget::sphere(const materialStruct* p_front){
 void SceneWidget::house() {
     glPushMatrix();
 
+    glEnable(GL_TEXTURE_2D);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // floor
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
+    glPushMatrix();
+    glRotatef(90,0,0,1);
+    glTranslatef(0,-1,0);
+    square(&woodMaterials, 5);
+    glPopMatrix();
+
+    // walls
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wall_texture->Width(), wall_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wall_texture->imageField());
     // left wall
     glRotatef(90.,1,0,0);
     glRotatef(90.,0,1,0);
     square(&whitePaintMaterials, 5);
-    // floor
+    // right wall
     glRotatef(-90.,1,0,0);
     glTranslatef(0,-1,0);
-    square(&woodMaterials, 5);
-    // right wall
     glRotatef(-90.,1,0,0);
     glTranslatef(0,-1,0);
     square(&whitePaintMaterials, 5);
@@ -268,6 +296,7 @@ void SceneWidget::house() {
     glPushMatrix();
 
     // draw windows
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
     glTranslatef(0.25,1,0.25);
     glPushMatrix();
     glTranslatef(0,-0.025,0);
@@ -298,6 +327,9 @@ void SceneWidget::house() {
             glPopMatrix();
         }
     }
+
+    glDisable(GL_TEXTURE_2D);
+
     // window glass (alpha blend)
     glPopMatrix();
     glRotatef(90,1,0,0);
@@ -331,6 +363,20 @@ void SceneWidget::house() {
     glPopMatrix();
 }
 
+void SceneWidget::background() {
+    glPushMatrix();
+    glEnable(GL_TEXTURE_2D);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, world_texture->Width(), world_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, world_texture->imageField());
+    glScalef(1.5,1.5,1.5);
+    cylinder(&blackPlasticMaterials);
+    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+}
+
 void SceneWidget::set_light_bulb_period(int value) {
     light_bulb_speed = 1.0/value;
 }
@@ -349,6 +395,7 @@ void SceneWidget::paintGL() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glLoadIdentity();
+    // gluLookAt(0,0,15,0.,3.,3.,0.,1.,1.);
     gluLookAt(1.,-5.5,3,0.,0.,3.,0.,0.,1.);
     glPushMatrix();
 
@@ -372,11 +419,7 @@ void SceneWidget::paintGL() {
     glPopMatrix();
 
     // draw the "background"
-    glPushMatrix();
-    glTranslatef(0.5,0.5,0);
-    glScalef(1.5,1.5,1.5);
-    cylinder(&blackPlasticMaterials);
-    glPopMatrix();
+    background();
 
     // house centered at 0,0,0
     glTranslatef(-0.5,-0.5,0.);
