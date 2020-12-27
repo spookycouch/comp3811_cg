@@ -134,15 +134,37 @@ void SceneWidget::square(const materialStruct* p_front, int n_div=1) {
 }
 
 void SceneWidget::cube(const materialStruct* p_front) {
-    glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR,   p_front->specular);
-    glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
     glPushMatrix();
-    glTranslatef(0.5,0.5,0.5);
-    glutSolidCube(1);
+
+    // top
+    glTranslatef(0,0,1);
+    square(p_front);
+    // front
+    glRotatef(90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(p_front);
+    // bottom
+    glRotatef(90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(p_front);
+    // back
+    glRotatef(90.,1,0,0);
+    glTranslatef(0,-1,0);
+    square(p_front);
+    // right
+    glPushMatrix();
+    glRotatef(90.,0,1,0);
+    glTranslatef(0,0,1);
+    square(p_front);
+    glPopMatrix();
+    // left
+    glRotatef(-90.,0,1,0);
+    glTranslatef(-1,0,0);
+    square(p_front);
+
     glPopMatrix();
 }
+
 
 void SceneWidget::cylinder(const materialStruct* p_front) {
     glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
