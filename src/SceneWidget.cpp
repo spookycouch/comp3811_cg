@@ -19,14 +19,14 @@ typedef struct materialStruct {
 
 static materialStruct woodMaterials = {
     { 0.0, 0.0, 0.0, 1.0},
-    { 0.6, 0.3, 0.15, 1.0},
+    { 0.8, 0.4, 0.2, 1.0},
     { 0.0, 0.0, 0.0, 1.0},
     20.0
 };
 
 static materialStruct whitePaintMaterials = {
     { 0.0, 0.0, 0.0, 1.0},
-    { 0.6, 0.6, 0.6, 1.0},
+    { 0.5, 0.5, 0.5, 1.0},
     { 0.5, 0.5, 0.5, 1.0},
     50.0
 };
@@ -39,9 +39,9 @@ static materialStruct blackPlasticMaterials = {
 };
 
 static materialStruct glassMaterials = {
-    { 0.5, 0.5, 0.5, 1.0},
-    { 0.8, 0.9, 1.0, 0.2},
-    { 0.8, 0.9, 1.0, 1.0},
+    { 0.0, 0.0, 0.0, 1.0},
+    { 0.6, 0.7, 0.8, 0.2},
+    { 0.6, 0.7, 0.8, 0.2},
     100.0
 };
 
@@ -49,6 +49,13 @@ static materialStruct warmLightMaterials = {
     { 1.0, 1.0, 0, 1.0},
     { 1.0, 1.0, 0, 0.9},
     { 1.0, 1.0, 0, 1.0},
+    100.0
+};
+
+static materialStruct backgroundMaterials = {
+    { 0.25, 0.25, 0.25, 1.0},
+    { 0, 0, 0, 1.0},
+    { 0, 0, 0, 1.0},
     100.0
 };
 
@@ -80,7 +87,7 @@ void SceneWidget::resizeGL(int w, int h) {
     GLfloat light_linear_atten = 0.3;
     GLfloat quadratic_linear_atten = 0.1;
 
-    // light 0 (room illumination)
+    // light 0 (light bulb illumination)
     glEnable(GL_LIGHT0);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
@@ -98,6 +105,18 @@ void SceneWidget::resizeGL(int w, int h) {
     glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, &light_linear_atten);
     glLightfv(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, &quadratic_linear_atten);
+
+    //light 2 (room illumination)
+    light_diffuse[0] = 0.25;
+    light_diffuse[1] = 0.25;
+    light_diffuse[2] = 0.25;
+    GLfloat light_pos[] = {0, 0, 0, 1.};
+    GLfloat light_ambient[] = {0.1, 0.1, 0.1, 1.};
+
+    glEnable(GL_LIGHT2);
+    glLightfv(GL_LIGHT2, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT2, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT2, GL_POSITION, light_pos);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -372,7 +391,7 @@ void SceneWidget::background() {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, world_texture->Width(), world_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, world_texture->imageField());
     glScalef(1.5,1.5,1.5);
-    cylinder(&blackPlasticMaterials);
+    cylinder(&backgroundMaterials);
     glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 }
