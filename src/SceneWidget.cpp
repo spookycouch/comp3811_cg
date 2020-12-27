@@ -1,67 +1,9 @@
 #include "SceneWidget.h"
+#include "utils/Shapes.h"
+#include "utils/MaterialPredefs.h"
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <cmath>
-
-#include <iostream>
-// static const int N        = 100; // This determines the number of faces of the cylinder
-// static const int n_div   =  100;  // This determines the fineness of the cylinder along its length
-static const float PI = 3.1415926535;
-
-// Setting up material properties
-typedef struct materialStruct {
-    GLfloat ambient[4];
-    GLfloat diffuse[4];
-    GLfloat specular[4];
-    GLfloat shininess;
-} materialStruct;
-
-static materialStruct woodMaterials = {
-    { 0.0, 0.0, 0.0, 1.0},
-    { 0.8, 0.4, 0.2, 1.0},
-    { 0.0, 0.0, 0.0, 1.0},
-    20.0
-};
-
-static materialStruct whitePaintMaterials = {
-    { 0.0, 0.0, 0.0, 1.0},
-    { 0.5, 0.5, 0.5, 1.0},
-    { 0.5, 0.5, 0.5, 1.0},
-    50.0
-};
-
-static materialStruct blackPlasticMaterials = {
-    { 0.0, 0.0, 0.0, 1.0},
-    { 0.1, 0.1, 0.1, 1.0},
-    { 0.6, 0.6, 0.6, 1.0},
-    50.0
-};
-
-static materialStruct glassMaterials = {
-    { 0.0, 0.0, 0.0, 1.0},
-    { 0.6, 0.7, 0.8, 0.2},
-    { 0.6, 0.7, 0.8, 0.2},
-    100.0
-};
-
-static materialStruct warmLightMaterials = {
-    { 1.0, 1.0, 0, 1.0},
-    { 1.0, 1.0, 0, 0.9},
-    { 1.0, 1.0, 0, 1.0},
-    100.0
-};
-
-static materialStruct backgroundMaterials = {
-    { 0.35, 0.35, 0.35, 1.0},
-    { 0, 0, 0, 1.0},
-    { 0, 0, 0, 1.0},
-    100.0
-};
-
-typedef struct textureTransform {
-    float translate[2];
-    float scale[2];
-} textureTransform;
 
 SceneWidget::SceneWidget(QWidget *parent){}
 
@@ -135,154 +77,9 @@ void SceneWidget::resizeGL(int w, int h) {
     glFrustum(-1.0,1.0, -1.0,1.0, 1.5,20.0);
 }
 
-void SceneWidget::square(const materialStruct* p_front, int n_div=1, textureTransform* tex_transform=0) {
-    glMaterialfv(GL_FRONT, GL_AMBIENT,  p_front->ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,  p_front->diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, p_front->specular);
-    glMaterialf(GL_FRONT, GL_SHININESS, p_front->shininess);
-    // float n_div = 10.0;
-    float step_size = 1.0/n_div;
-
-    for (int i = 0; i < n_div; ++i)
-        for (int j = 0; j < n_div; ++j)
-        {
-            // vertex coordinates
-            float x0 = i * step_size;
-            float y0 = j * step_size;
-            float x1 = x0 + step_size;
-            float y1 = y0 + step_size;
-
-            // texture coordinates
-            float tx0 = x0;
-            float ty0 = y0;
-            float tx1 = x1;
-            float ty1 = y1;
-
-            // apply texture transforms (if present)
-            if (tex_transform) {
-                tx0 = x0 + tex_transform->translate[0];
-                ty0 = y0 + tex_transform->translate[1];
-                tx1 = tx0 + step_size*tex_transform->scale[0];
-                ty1 = ty0 + step_size*tex_transform->scale[1];
-            }
-
-            // create polygon
-            glBegin(GL_POLYGON);
-                glTexCoord2f(tx0, ty0);
-                glVertex3f(x0,y0,0);
-                glNormal3f(0,0,1);
-
-                glTexCoord2f(tx1, ty0);
-                glVertex3f(x1,y0,0);
-                glNormal3f(0,0,1);
-
-                glTexCoord2f(tx1, ty1);
-                glVertex3f(x1,y1,0);
-                glNormal3f(0,0,1);
-
-                glTexCoord2f(tx0, ty1);
-                glVertex3f(x0,y1,0);
-                glNormal3f(0,0,1);
-            glEnd();
-        }
-}
-
-void SceneWidget::cube(const materialStruct* p_front) {
-    glPushMatrix();
-
-    // top
-    glTranslatef(0,0,1);
-    square(p_front);
-    // front
-    glRotatef(90.,1,0,0);
-    glTranslatef(0,-1,0);
-    square(p_front);
-    // bottom
-    glRotatef(90.,1,0,0);
-    glTranslatef(0,-1,0);
-    square(p_front);
-    // back
-    glRotatef(90.,1,0,0);
-    glTranslatef(0,-1,0);
-    square(p_front);
-    // right
-    glPushMatrix();
-    glRotatef(90.,0,1,0);
-    glTranslatef(0,0,1);
-    square(p_front);
-    glPopMatrix();
-    // left
-    glRotatef(-90.,0,1,0);
-    glTranslatef(-1,0,0);
-    square(p_front);
-
-    glPopMatrix();
-}
-
-
-void SceneWidget::cylinder(const materialStruct* p_front, int N=8, int n_div=1) {
-    glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR,   p_front->specular);
-    glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
-
-    float x0, x1, y0, y1;
-    float tx0, tx1, ty0, ty1;
-    float z_min = 0;
-    float z_max = 1;
-    float delta_z = (z_max - z_min)/n_div;
-
-    for (int i = 0; i < N; i++){
-        for(int i_z = 0; i_z < n_div; i_z++){
-            x0 = cos(2*i*PI/N);
-            x1 = cos(2*(i+1)*PI/N);
-            y0 = sin(2*i*PI/N);
-            y1 = sin(2*(i+1)*PI/N);
-
-            // flip texture x coords
-            tx0 = 1;
-            ty0 = 0;
-            tx1 = 0;
-            ty1 = 1;
-
-            // NOTE: drawn clockwise to face inwards
-            float z = z_min + i_z*delta_z;
-            glBegin(GL_POLYGON);
-                glTexCoord2f(tx0, ty0);
-                glVertex3f(x0,y0,z);
-                glNormal3f(-x0,-y0,0);
-
-                glTexCoord2f(tx0, ty1);
-                glVertex3f(x0,y0,z+delta_z);
-                glNormal3f(-x0,-y0,0);
-
-                glTexCoord2f(tx1, ty1);
-                glVertex3f(x1,y1,z+delta_z);
-                glNormal3f(-x1,-y1,0);
-
-                glTexCoord2f(tx1, ty0);
-                glVertex3f(x1,y1,z);
-                glNormal3f(-x1,-y1,0);
-            glEnd();
-        }
-    }
-}
-
-void SceneWidget::sphere(const materialStruct* p_front){
-
-    glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR,   p_front->specular);
-    glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
-    GLUquadric * quad = gluNewQuadric();
-    gluQuadricOrientation(quad, GLU_INSIDE);
-    gluSphere(quad, 1, 32, 32);
-}
-
-void SceneWidget::house() {
-    glPushMatrix(); // D0
-
+void SceneWidget::walls() {
     glEnable(GL_TEXTURE_2D);
+    glPushMatrix(); // D0
 
     // floor
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
@@ -291,7 +88,6 @@ void SceneWidget::house() {
     glTranslatef(0,-1,0);
     square(&woodMaterials, 5);
     glPopMatrix(); // D1
-
     // walls
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wall_texture->Width(), wall_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wall_texture->imageField());
     // left wall
@@ -308,13 +104,12 @@ void SceneWidget::house() {
     glRotatef(-90.,1,0,0);
     glTranslatef(0,-1,0);
     square(&whitePaintMaterials, 5);
-    // front wall
+
+    // front wall (panels around window)
     glPopMatrix(); // D0
     glPushMatrix(); // D0
     glTranslatef(0,1,0);
     glRotatef(90.,1,0,0);
-
-    // wall panels around window
     textureTransform* wall_transform = new textureTransform();
     // 4 rectangular panels,
     // adjacent to windows
@@ -361,6 +156,11 @@ void SceneWidget::house() {
     square(&whitePaintMaterials, 1, wall_transform);
     delete wall_transform;
     glPopMatrix(); // D0
+    glDisable(GL_TEXTURE_2D);
+}
+
+void SceneWidget::window() {
+    glEnable(GL_TEXTURE_2D);
     glPushMatrix(); // D0
 
     // draw windows
@@ -403,8 +203,10 @@ void SceneWidget::house() {
     glRotatef(90,1,0,0);
     glScalef(0.5,0.5,1);
     square(&glassMaterials);
-
     glPopMatrix(); // D0
+}
+
+void SceneWidget::light_bulb() {
     glPushMatrix(); // D0
 
     // light cable
@@ -429,6 +231,12 @@ void SceneWidget::house() {
     sphere(&glassMaterials);
 
     glPopMatrix(); // D0
+}
+
+void SceneWidget::house() {
+    walls();
+    window();
+    light_bulb();
 }
 
 void SceneWidget::background() {
@@ -480,8 +288,8 @@ void SceneWidget::paintGL() {
 
     // light bulb rotation
     light_bulb_time += light_bulb_speed;
-    if (light_bulb_time >= 2 * PI)
-        light_bulb_time -= 2 * PI; // prevent overflow
+    if (light_bulb_time >= 2 * M_PI)
+        light_bulb_time -= 2 * M_PI; // prevent overflow
     light_bulb_angle = sin(light_bulb_time) * light_bulb_amplitude;
 
     // background rotation

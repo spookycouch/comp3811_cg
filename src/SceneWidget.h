@@ -14,35 +14,29 @@ class SceneWidget: public QGLWidget {
      **/
     SceneWidget(QWidget *parent);
 
+
     private:
-    /** Square
-     * a flat plane from x=0 to x=1, y=0 to y=1
-    */
-    void square(const materialStruct* p_front, int n_div, textureTransform* tex_transform);
+    /** Walls for the setting.
+     * Made up of 2D squares.
+     * Uses materials and textures.
+     */
+    void walls();
 
+    /** Window for the setting.
+     * Made up of 3D cubes.
+     * Uses materials and textures.
+     */
+    void window();
 
-    /** Cube
-     * GLUT solid cube of origin at the bottom left with z=0
-    **/
-    void cube(const materialStruct* p_front);
-
-
-    /** Cylinder
-     * taken from COMP3811 tutorials
-     * a cylinder of origin at the centre with z=0
-    **/
-    void cylinder(const materialStruct* p_front, int N, int n_div);
-
-
-    /** Sphere
-     * GLUT sphere of origin at its centre
-    **/
-    void sphere(const materialStruct* p_front );
-
+    /** Light bulb for the setting.
+     * Made up of cylinders and spheres.
+     * Uses materials.
+     */
+    void light_bulb();
 
     /** House
      * Setting for our complex visual scene, comprised of
-     * instances of squares, cubes, cylinders and spheres.
+     * walls, a window and a light bulb.
     **/
     void house();
 
@@ -53,6 +47,9 @@ class SceneWidget: public QGLWidget {
 
 
     public slots:
+    /** Setters
+     * for Qt interface.
+     */
     void set_light_bulb_period(int value);
     void set_light_bulb_amplitude(int value);
     void set_background_index(int index);
@@ -60,17 +57,20 @@ class SceneWidget: public QGLWidget {
 
 
     private:
-    float light_bulb_angle;
+    // variables to be adjusted via Qt
+    float light_bulb_angle = 0;
     float light_bulb_amplitude = 60;
     float light_bulb_speed = 0.05;
     float light_bulb_time = 0.0;
     float background_rotation = 0.0;
     float background_speed = 1.0;
-    // textures
+
+    // textures used in the scene
     Image* wall_texture;
     Image* wood_texture;
     std::vector<Image*> bg_textures;
     int bg_index = 0;
+
 
     protected:
     // OpenGL functions for init, resize and paint
