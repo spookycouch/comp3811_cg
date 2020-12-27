@@ -16,7 +16,6 @@ typedef struct materialStruct {
     GLfloat shininess;
 } materialStruct;
 
-
 static materialStruct woodMaterials = {
     { 0.0, 0.0, 0.0, 1.0},
     { 0.8, 0.4, 0.2, 1.0},
@@ -58,6 +57,11 @@ static materialStruct backgroundMaterials = {
     { 0, 0, 0, 1.0},
     100.0
 };
+
+typedef struct textureTransform {
+    float translate[2];
+    float scale[2];
+} textureTransform;
 
 SceneWidget::SceneWidget(QWidget *parent){}
 
@@ -123,7 +127,7 @@ void SceneWidget::resizeGL(int w, int h) {
     glFrustum(-1.0,1.0, -1.0,1.0, 1.5,20.0);
 }
 
-void SceneWidget::square(const materialStruct* p_front, int n_div=1) {
+void SceneWidget::square(const materialStruct* p_front, int n_div=1, textureTransform* tex_transform=0) {
     glMaterialfv(GL_FRONT, GL_AMBIENT,  p_front->ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE,  p_front->diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR, p_front->specular);
@@ -134,25 +138,41 @@ void SceneWidget::square(const materialStruct* p_front, int n_div=1) {
     for (int i = 0; i < n_div; ++i)
         for (int j = 0; j < n_div; ++j)
         {
+            // vertex coordinates
             float x0 = i * step_size;
             float y0 = j * step_size;
             float x1 = x0 + step_size;
             float y1 = y0 + step_size;
 
+            // texture coordinates
+            float tx0 = x0;
+            float ty0 = y0;
+            float tx1 = x1;
+            float ty1 = y1;
+
+            // apply texture transforms (if present)
+            if (tex_transform) {
+                tx0 = x0 + tex_transform->translate[0];
+                ty0 = y0 + tex_transform->translate[1];
+                tx1 = tx0 + step_size*tex_transform->scale[0];
+                ty1 = ty0 + step_size*tex_transform->scale[1];
+            }
+
+            // create polygon
             glBegin(GL_POLYGON);
-                glTexCoord2f(x0, y0);
+                glTexCoord2f(tx0, ty0);
                 glVertex3f(x0,y0,0);
                 glNormal3f(0,0,1);
 
-                glTexCoord2f(x1, y0);
+                glTexCoord2f(tx1, ty0);
                 glVertex3f(x1,y0,0);
                 glNormal3f(0,0,1);
 
-                glTexCoord2f(x1, y1);
+                glTexCoord2f(tx1, ty1);
                 glVertex3f(x1,y1,0);
                 glNormal3f(0,0,1);
 
-                glTexCoord2f(x0, y1);
+                glTexCoord2f(tx0, ty1);
                 glVertex3f(x0,y1,0);
                 glNormal3f(0,0,1);
             glEnd();
@@ -247,21 +267,21 @@ void SceneWidget::sphere(const materialStruct* p_front){
 }
 
 void SceneWidget::house() {
-    glPushMatrix();
+    glPushMatrix(); // D0
 
     glEnable(GL_TEXTURE_2D);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // floor
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
-    glPushMatrix();
+    glPushMatrix(); // D1
     glRotatef(90,0,0,1);
     glTranslatef(0,-1,0);
     square(&woodMaterials, 5);
-    glPopMatrix();
+    glPopMatrix(); // D1
 
     // walls
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wall_texture->Width(), wall_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wall_texture->imageField());
@@ -280,106 +300,126 @@ void SceneWidget::house() {
     glTranslatef(0,-1,0);
     square(&whitePaintMaterials, 5);
     // front wall
-    glPopMatrix();
-    glPushMatrix();
+    glPopMatrix(); // D0
+    glPushMatrix(); // D0
     glTranslatef(0,1,0);
     glRotatef(90.,1,0,0);
+
+    // wall panels around window
+    textureTransform* wall_transform = new textureTransform();
     // 4 rectangular panels,
     // adjacent to windows
-    glPushMatrix();
+    glPushMatrix(); // D1
     glTranslatef(0.25,0,0);
     glScalef(0.5,0.25,1);
-    square(&whitePaintMaterials);
+    wall_transform->translate[0] = 0.25;
+    wall_transform->translate[1] = 0;
+    wall_transform->scale[0] = 0.5;
+    wall_transform->scale[1] = 0.25;
+    square(&whitePaintMaterials, 1, wall_transform);
     glTranslatef(0,3,0);
-    square(&whitePaintMaterials);
-    glPopMatrix();
-    glPushMatrix();
+    wall_transform->translate[1] += 3;
+    square(&whitePaintMaterials, 1, wall_transform);
+    glPopMatrix(); // D1
+    glPushMatrix(); // D1
     glScalef(0.25,0.5,1);
     glTranslatef(0,0.5,0);
-    square(&whitePaintMaterials);
+    wall_transform->translate[0] = 0;
+    wall_transform->translate[1] = 0.5;
+    wall_transform->scale[0] = 0.25;
+    wall_transform->scale[1] = 0.5;
+    square(&whitePaintMaterials, 1, wall_transform);
     glTranslatef(3,0,0);
-    square(&whitePaintMaterials);
+    wall_transform->translate[0] += 3;
+    square(&whitePaintMaterials, 1, wall_transform);
     // 4 square panels,
     // diagonal to windows
-    glPopMatrix();
+    glPopMatrix(); // D1
     glScalef(0.25,0.25,1);
-    square(&whitePaintMaterials);
+    wall_transform->translate[0] = 0;
+    wall_transform->translate[1] = 0;
+    wall_transform->scale[0] = 0.25;
+    wall_transform->scale[1] = 0.25;
+    square(&whitePaintMaterials, 1, wall_transform);
     glTranslatef(3,0,0);
-    square(&whitePaintMaterials);
+    wall_transform->translate[0] += 3;
+    square(&whitePaintMaterials, 1, wall_transform);
     glTranslatef(0,3,0);
-    square(&whitePaintMaterials);
+    wall_transform->translate[1] += 3;
+    square(&whitePaintMaterials, 1, wall_transform);
     glTranslatef(-3,0,0);
-    square(&whitePaintMaterials);
-
-    glPopMatrix();
-    glPushMatrix();
+    wall_transform->translate[0] -= 3;
+    square(&whitePaintMaterials, 1, wall_transform);
+    delete wall_transform;
+    glPopMatrix(); // D0
+    glPushMatrix(); // D0
 
     // draw windows
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
     glTranslatef(0.25,1,0.25);
-    glPushMatrix();
+    glPushMatrix(); // D1
     glTranslatef(0,-0.025,0);
     // window "bones"
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < 3; ++j) {
-            glPushMatrix();
+            glPushMatrix(); // D2
             glTranslatef(0.225 * i, 0, 0.225 * j);
             glScalef(0.225,0.05,0.05);
             cube(&woodMaterials);
 
-            glPopMatrix();
-            glPushMatrix();
+            glPopMatrix(); // D2
+            glPushMatrix(); // D2
 
             glTranslatef(0.225 * j, 0, 0.225 * i);
             glScalef(0.05,0.05,0.225);
             cube(&woodMaterials);
-            glPopMatrix();
+            glPopMatrix(); // D2
         }
     }
     // window "joints"
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            glPushMatrix();
+            glPushMatrix(); // D2
             glTranslatef(0.225 * i, 0, 0.225 * j);
             glScalef(0.05,0.05,0.05);
             cube(&woodMaterials);
-            glPopMatrix();
+            glPopMatrix(); // D2
         }
     }
 
     glDisable(GL_TEXTURE_2D);
 
     // window glass (alpha blend)
-    glPopMatrix();
+    glPopMatrix(); // D1
     glRotatef(90,1,0,0);
     glScalef(0.5,0.5,1);
     square(&glassMaterials);
 
-    glPopMatrix();
-    glPushMatrix();
+    glPopMatrix(); // D0
+    glPushMatrix(); // D0
 
     // light cable
     glTranslatef(0.5,0.5,1);
     glRotatef(180,1,0,0);
     glRotatef(light_bulb_angle, 0, 1, 0);
-    glPushMatrix();
+    glPushMatrix(); // D1
     glScalef(0.005,0.005,0.3);
     cylinder(&blackPlasticMaterials);
-    glPopMatrix();
+    glPopMatrix(); // D1
 
     // draw the light (alpha blend)
     glTranslatef(0,0,0.25);
-    glPushMatrix();
+    glPushMatrix(); // D1
     glScalef(0.01,0.01,0.03);
     glTranslatef(0,0,1);
     sphere(&warmLightMaterials);
     // draw the glass bulb (alpha blend)
-    glPopMatrix();
+    glPopMatrix(); // D1
     glScalef(0.025,0.025,0.04);
     glTranslatef(0,0,1);
     sphere(&glassMaterials);
 
-    glPopMatrix();
+    glPopMatrix(); // D0
 }
 
 void SceneWidget::background() {

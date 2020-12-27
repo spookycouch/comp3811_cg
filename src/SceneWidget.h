@@ -5,6 +5,7 @@
 #include "utils/Image.h"
 
 struct materialStruct;
+struct textureTransform;
 
 class SceneWidget: public QGLWidget {
     public:
@@ -17,7 +18,7 @@ class SceneWidget: public QGLWidget {
     /** Square
      * a flat plane from x=0 to x=1, y=0 to y=1
     */
-    void square(const materialStruct* p_front, int n_div);
+    void square(const materialStruct* p_front, int n_div, textureTransform* tex_transform);
 
 
     /** Cube
