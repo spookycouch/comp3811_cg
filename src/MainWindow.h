@@ -6,6 +6,7 @@
 #include <QBoxLayout>
 #include <QLabel>
 #include <QSlider>
+#include <QComboBox>
 #include <QTimer>
 #include "SceneWidget.h"
 
@@ -28,6 +29,8 @@ class MainWindow: public QWidget {
     QSlider* light_bulb_period_slider;
     QLabel* background_speed_label;
     QSlider* background_speed_slider;
+    QLabel* background_tex_label;
+    QComboBox* background_tex_combobox;
 
     QTimer* timer;
 };

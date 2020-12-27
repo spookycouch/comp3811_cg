@@ -55,6 +55,7 @@ class SceneWidget: public QGLWidget {
     public slots:
     void set_light_bulb_period(int value);
     void set_light_bulb_amplitude(int value);
+    void set_background_index(int index);
     void set_background_speed(int value);
 
 
@@ -68,7 +69,8 @@ class SceneWidget: public QGLWidget {
     // textures
     Image* wall_texture;
     Image* wood_texture;
-    Image* world_texture;
+    std::vector<Image*> bg_textures;
+    int bg_index = 0;
 
     protected:
     // OpenGL functions for init, resize and paint

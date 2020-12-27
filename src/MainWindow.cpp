@@ -40,6 +40,13 @@ MainWindow::MainWindow(QWidget *parent)
     // connect(light_bulb_period_slider, SIGNAL(sliderMoved(int)), scene_widget_, SLOT(set_light_bulb_period(int)));
     connect(light_bulb_period_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_light_bulb_period);
 
+    // background_texture
+    background_tex_label = new QLabel("Background texture:");
+    background_tex_combobox = new QComboBox();
+    background_tex_combobox->addItem("Marc de Kamps");
+    background_tex_combobox->addItem("Mercator");
+    connect(background_tex_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), scene_widget_, &SceneWidget::set_background_index);
+
     // background speed
     background_speed_label = new QLabel("Background speed:");
     background_speed_slider = new QSlider(Qt::Horizontal);
@@ -47,12 +54,13 @@ MainWindow::MainWindow(QWidget *parent)
     background_speed_slider->setValue(2);
     connect(background_speed_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_background_speed);
 
-
     // build user menu
     user_layout_->addWidget(light_bulb_amp_label);
     user_layout_->addWidget(light_bulb_amp_slider);
     user_layout_->addWidget(light_bulb_period_label);
     user_layout_->addWidget(light_bulb_period_slider);
+    user_layout_->addWidget(background_tex_label);
+    user_layout_->addWidget(background_tex_combobox);
     user_layout_->addWidget(background_speed_label);
     user_layout_->addWidget(background_speed_slider);
     user_layout_->addStretch(1);

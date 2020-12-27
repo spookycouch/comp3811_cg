@@ -76,8 +76,9 @@ void SceneWidget::initializeGL() {
     // load textures
     wall_texture = new Image("textures/Finishes.Painting.Paint.White.Flaking.jpg");
     wood_texture = new Image("textures/beechwood_mysticBrown.png");
-    world_texture = new Image("textures/Marc_Dekamps.ppm");
-    // world_texture = new Image("textures/Mercator-projection.ppm");
+
+    bg_textures.push_back(new Image("textures/Marc_Dekamps.ppm"));
+    bg_textures.push_back(new Image("textures/Mercator-projection.ppm"));
 }
 
 void SceneWidget::resizeGL(int w, int h) {
@@ -433,7 +434,7 @@ void SceneWidget::house() {
 void SceneWidget::background() {
     glPushMatrix();
     glEnable(GL_TEXTURE_2D);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, world_texture->Width(), world_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, world_texture->imageField());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bg_textures[bg_index]->Width(), bg_textures[bg_index]->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bg_textures[bg_index]->imageField());
 
     glRotatef(background_rotation, 0, 0, 1);
     glTranslatef(0,0,-0.2);
@@ -449,6 +450,10 @@ void SceneWidget::set_light_bulb_period(int value) {
 
 void SceneWidget::set_light_bulb_amplitude(int value) {
     light_bulb_amplitude = value;
+}
+
+void SceneWidget::set_background_index(int index) {
+    bg_index = index;
 }
 
 void SceneWidget::set_background_speed(int value) {
