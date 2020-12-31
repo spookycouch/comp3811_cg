@@ -53,6 +53,47 @@ void WavefrontObj::load_mtl(std::string path) {
             mtl_struct->name = std::string(name);
         }
 
+        // parse ambient
+        if (!strcmp(token, "Ka")) {
+            float r,g,b;
+
+            if (sscanf(line.c_str(), "%s %f %f %f", token, &r, &g, &b) <= 1)
+                continue;
+
+            // store values
+            mtl_struct->ambient[0] = r;
+            mtl_struct->ambient[1] = g;
+            mtl_struct->ambient[2] = b;
+            mtl_struct->ambient[3] = 1.0;
+        }
+
+        // parse diffuse
+        if (!strcmp(token, "Kd")) {
+            float r,g,b;
+
+            if (sscanf(line.c_str(), "%s %f %f %f", token, &r, &g, &b) <= 1)
+                continue;
+
+            // store values
+            mtl_struct->diffuse[0] = r;
+            mtl_struct->diffuse[1] = g;
+            mtl_struct->diffuse[2] = b;
+            mtl_struct->diffuse[3] = 1.0;
+        }
+
+        // parse specular
+        if (!strcmp(token, "Ks")) {
+            float r,g,b;
+
+            if (sscanf(line.c_str(), "%s %f %f %f", token, &r, &g, &b) <= 1)
+                continue;
+
+            // store values
+            mtl_struct->specular[0] = r;
+            mtl_struct->specular[1] = g;
+            mtl_struct->specular[2] = b;
+            mtl_struct->specular[3] = 1.0;
+        }
 
         // parse material library
         if (!strcmp(token, "map_Kd")) {
@@ -105,7 +146,7 @@ void WavefrontObj::load(std::string path) {
             std::vector<float> vertex;
             float x,y,z;
 
-            if (sscanf(line.substr(1).c_str(), "%f %f %f", &x, &y, &z) <= 0)
+            if (sscanf(line.c_str(), "%s %f %f %f", token, &x, &y, &z) <= 1)
                 continue;
 
             // store values
@@ -121,7 +162,7 @@ void WavefrontObj::load(std::string path) {
             std::vector<float> texture;
             float x,y,z;
 
-            if (sscanf(line.substr(2).c_str(), "%f %f %f", &x, &y, &z) <= 0)
+            if (sscanf(line.c_str(), "%s %f %f %f", token, &x, &y, &z) <= 1)
                 continue;
 
             // store values
@@ -137,7 +178,7 @@ void WavefrontObj::load(std::string path) {
             std::vector<float> normal;
             float x,y,z;
 
-            if (sscanf(line.substr(2).c_str(), "%f %f %f", &x, &y, &z) <= 0)
+            if (sscanf(line.c_str(), "%s %f %f %f", token, &x, &y, &z) <= 0)
                 continue;
 
             // store values
@@ -177,7 +218,7 @@ void WavefrontObj::load(std::string path) {
             std::vector<int>* t_indices = new std::vector<int>();
             std::vector<int>* n_indices = new std::vector<int>();
 
-            std::stringstream linestream(line.substr(1));
+            std::stringstream linestream(line.substr(line.find("f") + 1));
             std::string face_str;
 
             // parse any number of polygon indices
@@ -208,13 +249,17 @@ void WavefrontObj::draw() {
     for (std::vector<wavefrontSubObj>::iterator sub_object = sub_objects->begin(); sub_object != sub_objects->end(); ++sub_object) {
         wavefrontMtl* mtl = sub_object->mtl;
         // std::cout << sub_object->name << " " << mtl->name << " " << mtl->image_index << " " << mtl->path << std::endl;
-        Image* texture = images->at(mtl->image_index);
-
         // std::cout << mtl->name << " " << mtl->path.size() << std::endl;
+
         if (mtl->path.size()) {
+            Image* texture = images->at(mtl->image_index);
             glEnable(GL_TEXTURE_2D);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->Width(), texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture->imageField());
         }
+        glMaterialfv(GL_FRONT, GL_AMBIENT,  mtl->ambient);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE,  mtl->diffuse);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, mtl->specular);
+        glMaterialf(GL_FRONT, GL_SHININESS, mtl->shininess);
 
         // std::cout << texture->Width() << " " << texture->Height() << std::endl;
 

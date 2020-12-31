@@ -10,6 +10,10 @@ typedef struct wavefrontMtl {
     std::string name;
     std::string path;
     int image_index;
+    GLfloat ambient[4];
+    GLfloat diffuse[4];
+    GLfloat specular[4];
+    GLfloat shininess;
 }wavefrontMtl;
 
 typedef struct wavefrontSubObj {

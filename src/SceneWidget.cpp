@@ -329,10 +329,6 @@ void SceneWidget::paintGL() {
 
     glDisable(GL_BLEND);
     // glDisable(GL_LIGHTING);
-    glMaterialfv(GL_FRONT, GL_AMBIENT,  personMaterials.ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,  personMaterials.diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, personMaterials.specular);
-    glMaterialf(GL_FRONT, GL_SHININESS, personMaterials.shininess);
     character();
     glPopMatrix();
 
