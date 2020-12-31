@@ -3,6 +3,7 @@
 
 #include <QGLWidget>
 #include "utils/Image.h"
+#include "utils/WavefrontObj.h"
 
 struct materialStruct;
 struct textureTransform;
@@ -41,9 +42,15 @@ class SceneWidget: public QGLWidget {
     void house();
 
     /** Background
-     * Background viewable from the window of our house
+     * Background viewable from the window of our house.
      */
     void background();
+
+    /** Character
+     * Draw the character, a convex object constructed
+     * from polygons.
+     */
+    void character();
 
 
     public slots:
@@ -57,6 +64,10 @@ class SceneWidget: public QGLWidget {
 
 
     private:
+    // wavefront objects
+    WavefrontObj body;
+    WavefrontObj head;
+
     // variables to be adjusted via Qt
     float light_bulb_angle = 0;
     float light_bulb_amplitude = 60;

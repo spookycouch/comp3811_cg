@@ -17,10 +17,14 @@ void SceneWidget::initializeGL() {
 
     // load textures
     wall_texture = new Image("textures/Finishes.Painting.Paint.White.Flaking.jpg");
-    wood_texture = new Image("textures/beechwood_mysticBrown.png");
+    wood_texture = new Image("textures/wild_cherry_mysticBrown.png");
 
+    bg_textures.push_back(new Image("textures/dark_woods.jpg"));
     bg_textures.push_back(new Image("textures/Marc_Dekamps.ppm"));
     bg_textures.push_back(new Image("textures/Mercator-projection.ppm"));
+
+    body.load("textures/body.obj");
+    head.load("textures/head.obj");
 }
 
 void SceneWidget::resizeGL(int w, int h) {
@@ -30,10 +34,10 @@ void SceneWidget::resizeGL(int w, int h) {
     glLoadIdentity();
 
     glEnable(GL_LIGHTING);
-    GLfloat light_diffuse[] = {0.5, 0.5, 0.5, 1};
+    GLfloat light_diffuse[] = {1, 1, 1, 1};
     GLfloat light_specular[] = {1, 1, 1, 1};
     GLfloat light_linear_atten = 0.3;
-    GLfloat quadratic_linear_atten = 0.1;
+    GLfloat quadratic_linear_atten = 0.01;
 
     // light 0 (light bulb illumination)
     glEnable(GL_LIGHT0);
@@ -42,9 +46,6 @@ void SceneWidget::resizeGL(int w, int h) {
     glLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, &light_linear_atten);
     glLightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, &quadratic_linear_atten);
 
-    light_diffuse[0] = 1;
-    light_diffuse[1] = 1;
-    light_diffuse[2] = 1;
     light_linear_atten = 0.9;
     quadratic_linear_atten = 0.9;
 
@@ -54,17 +55,17 @@ void SceneWidget::resizeGL(int w, int h) {
     glLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, &light_linear_atten);
     glLightfv(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, &quadratic_linear_atten);
 
-    //light 2 (room illumination)
-    light_diffuse[0] = 0.25;
-    light_diffuse[1] = 0.25;
-    light_diffuse[2] = 0.25;
-    GLfloat light_pos[] = {0, 0, 0, 1.};
-    GLfloat light_ambient[] = {0.1, 0.1, 0.1, 1.};
+    // //light 2 (room illumination)
+    // light_diffuse[0] = 0.25;
+    // light_diffuse[1] = 0.25;
+    // light_diffuse[2] = 0.25;
+    // GLfloat light_pos[] = {0, 0, 0, 1.};
+    // GLfloat light_ambient[] = {0.1, 0.1, 0.1, 1.};
 
-    glEnable(GL_LIGHT2);
-    glLightfv(GL_LIGHT2, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT2, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT2, GL_POSITION, light_pos);
+    // glEnable(GL_LIGHT2);
+    // glLightfv(GL_LIGHT2, GL_AMBIENT, light_ambient);
+    // glLightfv(GL_LIGHT2, GL_DIFFUSE, light_diffuse);
+    // glLightfv(GL_LIGHT2, GL_POSITION, light_pos);
 
     // texture parameters
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -252,6 +253,12 @@ void SceneWidget::background() {
     glPopMatrix();
 }
 
+void SceneWidget::character() {
+    body.draw();
+    glTranslatef(0,2,0);
+    head.draw();
+}
+
 void SceneWidget::set_light_bulb_period(int value) {
     light_bulb_speed = 1.0/value;
 }
@@ -313,5 +320,21 @@ void SceneWidget::paintGL() {
 
     glPopMatrix();
     glPopMatrix();
+
+    glPushMatrix();
+    glScalef(1.5, 1.5, 1.5);
+    glRotatef(90, 1, 0, 0);
+    glTranslatef(0,0,-1);
+    glRotatef(75, 0, 1, 0);
+
+    glDisable(GL_BLEND);
+    // glDisable(GL_LIGHTING);
+    glMaterialfv(GL_FRONT, GL_AMBIENT,  personMaterials.ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,  personMaterials.diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, personMaterials.specular);
+    glMaterialf(GL_FRONT, GL_SHININESS, personMaterials.shininess);
+    character();
+    glPopMatrix();
+
     glFlush();
 }

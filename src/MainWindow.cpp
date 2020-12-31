@@ -43,8 +43,9 @@ MainWindow::MainWindow(QWidget *parent)
     // background_texture
     background_tex_label = new QLabel("Background texture:");
     background_tex_combobox = new QComboBox();
+    background_tex_combobox->addItem("Dark woods");
     background_tex_combobox->addItem("Marc de Kamps");
-    background_tex_combobox->addItem("Mercator");
+    background_tex_combobox->addItem("Mercator projection");
     connect(background_tex_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), scene_widget_, &SceneWidget::set_background_index);
 
     // background speed
