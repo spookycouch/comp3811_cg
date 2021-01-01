@@ -35,6 +35,8 @@ class SceneWidget: public QGLWidget {
      */
     void light_bulb();
 
+    void floor();
+
     /** House
      * Setting for our complex visual scene, comprised of
      * walls, a window and a light bulb.
@@ -51,6 +53,8 @@ class SceneWidget: public QGLWidget {
      * from polygons.
      */
     void character();
+
+    void shadow();
 
 
     public slots:
@@ -79,8 +83,10 @@ class SceneWidget: public QGLWidget {
     float background_speed = 1.0;
     float rocking_chair_time = 0.0;
     float rocking_chair_speed = 0.075;
+    float rocking_chair_angle = 0.0;
     float head_vibrate_time = 0.0;
     float head_vibrate_speed = 0.6;
+    float head_vibrate_angle = 0.0;
     bool proof_of_orbit = false;
     float orbit_angle = 0;
 

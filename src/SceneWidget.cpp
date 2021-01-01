@@ -60,17 +60,23 @@ void SceneWidget::resizeGL(int w, int h) {
     glFrustum(-1.0,1.0, -1.0,1.0, 1.5,20.0);
 }
 
+void SceneWidget::floor() {
+    glEnable(GL_TEXTURE_2D);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
+
+    glPushMatrix();
+    glRotatef(90,0,0,1);
+    glTranslatef(0,-1,0);
+    square(&woodMaterials, 5);
+    glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+}
+
 void SceneWidget::walls() {
     glEnable(GL_TEXTURE_2D);
     glPushMatrix(); // D0
 
-    // floor
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
-    glPushMatrix(); // D1
-    glRotatef(90,0,0,1);
-    glTranslatef(0,-1,0);
-    square(&woodMaterials, 5);
-    glPopMatrix(); // D1
     // walls
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wall_texture->Width(), wall_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wall_texture->imageField());
     // left wall
@@ -95,7 +101,7 @@ void SceneWidget::walls() {
     glRotatef(90.,1,0,0);
     textureTransform* wall_transform = new textureTransform();
     // 4 rectangular panels,
-    // adjacent to windows
+    // adjacent to window
     glPushMatrix(); // D1
     glTranslatef(0.25,0,0);
     glScalef(0.5,0.25,1);
@@ -120,7 +126,7 @@ void SceneWidget::walls() {
     wall_transform->translate[0] += 3;
     square(&whitePaintMaterials, 1, wall_transform);
     // 4 square panels,
-    // diagonal to windows
+    // diagonal to window
     glPopMatrix(); // D1
     glScalef(0.25,0.25,1);
     wall_transform->translate[0] = 0;
@@ -236,30 +242,33 @@ void SceneWidget::background() {
 }
 
 void SceneWidget::character() {
-    // rotate object s.t. up is (0,0,1)
-    glRotatef(90, 1, 0, 0);
-    glRotatef(90, 0, 1, 0);
-    glTranslatef(0,0.1,0);
-
-    // set rocking chair angle and draw the body
-    rocking_chair_time += rocking_chair_speed;
-    if (rocking_chair_time >= 2 * M_PI)
-        rocking_chair_time -= 2 * M_PI; // prevent overflow
-    float rocking_chair_angle = sin(rocking_chair_time) * 20;
-    glRotatef(rocking_chair_angle,0,0,1);
+    glRotatef(rocking_chair_angle,0,1,0);
     body.draw();
 
-    // head is at y=2.1 units
-    glTranslatef(0,2.1,0);
+    // head is at z=2.1 units
+    glTranslatef(0,0,2.1);
 
-    // set head position and draw it
-    head_vibrate_time += head_vibrate_speed;
-    if (head_vibrate_time >= 2 * M_PI)
-        head_vibrate_time -= 2 * M_PI; // prevent overflow
-    float head_vibrate_angle = sin(head_vibrate_time) * 10;
-    glRotatef(head_vibrate_angle,0,1,0);
+    glRotatef(head_vibrate_angle,0,0,1);
     glRotatef(head_vibrate_angle,1,0,0);
     head.draw();
+}
+
+void SceneWidget::shadow() {
+    glPushMatrix();
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glColor3f(0,0,0);
+    float shear_chair = 0.5 * sin(rocking_chair_time);
+    float shear_light = 0.5 * sin(light_bulb_time);
+    GLfloat shadow_transform[16] = {1,0,0,0,
+                                    0,1,0,0,
+                                    shear_chair,shear_light,0,0,
+                                    0,0,0,1};
+    glMultMatrixf(shadow_transform);
+    character();
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+    glPopMatrix();
 }
 
 void SceneWidget::set_light_bulb_period(int value) {
@@ -290,31 +299,43 @@ void SceneWidget::set_proof_of_orbit(int state) {
     proof_of_orbit = state;
 }
 
+/** Add angle
+ * add two angles and return the normalised
+ * value between 0 and 2*PI radians.
+ */
+float add_angle(float x, float y) {
+    x += y;
+    if (x >= 2 * M_PI)
+        x -= 2 * M_PI;
+    return x;
+}
+
 void SceneWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_NORMALIZE);
-
-    glMatrixMode(GL_MODELVIEW);
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
+
 	glLoadIdentity();
     gluLookAt(1.,-5.5,3,0.,0.,3.,0.,0.,1.);
-    glPushMatrix();
+
+    // set light bulb angle
+    light_bulb_time = add_angle(light_bulb_time, light_bulb_speed);
+    light_bulb_angle = sin(light_bulb_time) * light_bulb_amplitude;
+    // background rotation
+    background_rotation += background_speed;
+    // set rocking chair angle
+    rocking_chair_time = add_angle(rocking_chair_time, rocking_chair_speed);
+    rocking_chair_angle = sin(rocking_chair_time) * 20;
+    // set head angle
+    head_vibrate_time = add_angle(head_vibrate_time, head_vibrate_speed);
+    head_vibrate_angle = sin(head_vibrate_time) * 10;
 
     // scale by 6
     glScalef(6,6,6);
-    glPushMatrix();
-
-    // light bulb rotation
-    light_bulb_time += light_bulb_speed;
-    if (light_bulb_time >= 2 * M_PI)
-        light_bulb_time -= 2 * M_PI; // prevent overflow
-    light_bulb_angle = sin(light_bulb_time) * light_bulb_amplitude;
-
-    // background rotation
-    background_rotation += background_speed;
 
     // position the lights
     glPushMatrix();
@@ -328,24 +349,32 @@ void SceneWidget::paintGL() {
     // draw the "background"
     background();
 
-    // house centered at 0,0,0
-    glTranslatef(-0.5,-0.5,0.);
-    house();
-
-    glPopMatrix();
-    glPopMatrix();
-
-    // draw our character in the scene
+    // floor centered at 0,0,0
     glPushMatrix();
-    glScalef(1.5, 1.5, 1.5);
+    glTranslatef(-0.5,-0.5,0.);
+    floor();
+    glPopMatrix();
+
+    // set character pose
+    glPushMatrix();
+    glScalef(0.25, 0.25, 0.25);
     if (proof_of_orbit) {
         glRotatef(orbit_angle,0,0,1);
         orbit_angle -= 1;
     }
     glTranslatef(0,1,0);
-    glRotatef(-15,0,0,1);
+    glRotatef(75,0,0,1);
+    // draw the character's shadow
+    shadow();
+    // draw the character
+    // (0.1 units off the ground to account for rocking chair)
+    glTranslatef(0,0,0.1);
     character();
     glPopMatrix();
+
+    // house centered at 0,0,0
+    glTranslatef(-0.5,-0.5,0.);
+    house();
 
     glFlush();
 }
