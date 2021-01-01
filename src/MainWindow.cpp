@@ -13,10 +13,10 @@ MainWindow::MainWindow(QWidget *parent)
     window_layout_ = new QHBoxLayout(this);
 
     // create scene widget
-    scene_widget_ = new SceneWidget(this);
+    scene_widget_ = new SceneWidget();
     scene_widget_->setMinimumSize(400,400);
     scene_widget_->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-    window_layout_->addWidget(scene_widget_);
+    window_layout_->addWidget(scene_widget_, 2);
 
 
     /** Create user interactivity items
@@ -55,6 +55,25 @@ MainWindow::MainWindow(QWidget *parent)
     background_speed_slider->setValue(2);
     connect(background_speed_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_background_speed);
 
+    // rocking chair period
+    rocking_chair_speed_label = new QLabel("Rocking chair speed:");
+    rocking_chair_speed_slider = new QSlider(Qt::Horizontal);
+    rocking_chair_speed_slider->setRange(0,30);
+    rocking_chair_speed_slider->setValue(15);
+    connect(rocking_chair_speed_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_rocking_chair_speed);
+
+    // head vibrate speed
+    head_vibrate_speed_label = new QLabel("Head vibrate speed:");
+    head_vibrate_speed_slider = new QSlider(Qt::Horizontal);
+    head_vibrate_speed_slider->setRange(0,10);
+    head_vibrate_speed_slider->setValue(6);
+    connect(head_vibrate_speed_slider, &QSlider::sliderMoved, scene_widget_, &SceneWidget::set_head_vibrate_speed);
+
+    // proof of orbit
+    proof_of_orbit_checkbox = new QCheckBox("Proof of orbit");
+    connect(proof_of_orbit_checkbox, &QCheckBox::stateChanged, scene_widget_, &SceneWidget::set_proof_of_orbit);
+
+
     // build user menu
     user_layout_->addWidget(light_bulb_amp_label);
     user_layout_->addWidget(light_bulb_amp_slider);
@@ -64,8 +83,13 @@ MainWindow::MainWindow(QWidget *parent)
     user_layout_->addWidget(background_tex_combobox);
     user_layout_->addWidget(background_speed_label);
     user_layout_->addWidget(background_speed_slider);
+    user_layout_->addWidget(rocking_chair_speed_label);
+    user_layout_->addWidget(rocking_chair_speed_slider);
+    user_layout_->addWidget(head_vibrate_speed_label);
+    user_layout_->addWidget(head_vibrate_speed_slider);
+    user_layout_->addWidget(proof_of_orbit_checkbox);
     user_layout_->addStretch(1);
-    window_layout_->addLayout(user_layout_);
+    window_layout_->addLayout(user_layout_, 1);
 
     // timer for frame update
     timer = new QTimer(this);

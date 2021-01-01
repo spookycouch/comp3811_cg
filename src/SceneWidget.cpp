@@ -5,33 +5,27 @@
 #include <GL/glut.h>
 #include <cmath>
 
-SceneWidget::SceneWidget(QWidget *parent){}
+
+
+SceneWidget::SceneWidget(){}
 
 void SceneWidget::initializeGL() {
-    glClearColor(1, 0.8, 0.8, 0.0);
-
-    // initialise glut with no arguments
-    int argc = 0;
-    char * argv = {};
-    glutInit(&argc, &argv);
+    glClearColor(0,0,0,0);
 
     // load textures
     wall_texture = new Image("textures/Finishes.Painting.Paint.White.Flaking.jpg");
     wood_texture = new Image("textures/wild_cherry_mysticBrown.png");
-
     bg_textures.push_back(new Image("textures/dark_woods.jpg"));
     bg_textures.push_back(new Image("textures/Marc_Dekamps.ppm"));
     bg_textures.push_back(new Image("textures/Mercator-projection.ppm"));
 
+    // load .obj files
     body.load("textures/body.obj");
     head.load("textures/head.obj");
 }
 
 void SceneWidget::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 
     glEnable(GL_LIGHTING);
     GLfloat light_diffuse[] = {1, 1, 1, 1};
@@ -54,18 +48,6 @@ void SceneWidget::resizeGL(int w, int h) {
     glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, &light_linear_atten);
     glLightfv(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, &quadratic_linear_atten);
-
-    // //light 2 (room illumination)
-    // light_diffuse[0] = 0.25;
-    // light_diffuse[1] = 0.25;
-    // light_diffuse[2] = 0.25;
-    // GLfloat light_pos[] = {0, 0, 0, 1.};
-    // GLfloat light_ambient[] = {0.1, 0.1, 0.1, 1.};
-
-    // glEnable(GL_LIGHT2);
-    // glLightfv(GL_LIGHT2, GL_AMBIENT, light_ambient);
-    // glLightfv(GL_LIGHT2, GL_DIFFUSE, light_diffuse);
-    // glLightfv(GL_LIGHT2, GL_POSITION, light_pos);
 
     // texture parameters
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -254,8 +236,29 @@ void SceneWidget::background() {
 }
 
 void SceneWidget::character() {
+    // rotate object s.t. up is (0,0,1)
+    glRotatef(90, 1, 0, 0);
+    glRotatef(90, 0, 1, 0);
+    glTranslatef(0,0.1,0);
+
+    // set rocking chair angle and draw the body
+    rocking_chair_time += rocking_chair_speed;
+    if (rocking_chair_time >= 2 * M_PI)
+        rocking_chair_time -= 2 * M_PI; // prevent overflow
+    float rocking_chair_angle = sin(rocking_chair_time) * 20;
+    glRotatef(rocking_chair_angle,0,0,1);
     body.draw();
-    glTranslatef(0,2,0);
+
+    // head is at y=2.1 units
+    glTranslatef(0,2.1,0);
+
+    // set head position and draw it
+    head_vibrate_time += head_vibrate_speed;
+    if (head_vibrate_time >= 2 * M_PI)
+        head_vibrate_time -= 2 * M_PI; // prevent overflow
+    float head_vibrate_angle = sin(head_vibrate_time) * 10;
+    glRotatef(head_vibrate_angle,0,1,0);
+    glRotatef(head_vibrate_angle,1,0,0);
     head.draw();
 }
 
@@ -275,6 +278,18 @@ void SceneWidget::set_background_speed(int value) {
     background_speed = value/2.0;
 }
 
+void SceneWidget::set_rocking_chair_speed(int value) {
+    rocking_chair_speed = value/200.0;
+}
+
+void SceneWidget::set_head_vibrate_speed(int value) {
+    head_vibrate_speed = value/10.0;
+}
+
+void SceneWidget::set_proof_of_orbit(int state) {
+    proof_of_orbit = state;
+}
+
 void SceneWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_NORMALIZE);
@@ -285,7 +300,6 @@ void SceneWidget::paintGL() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glLoadIdentity();
-    // gluLookAt(0,-3,15,0.,3.,3.,0.,1.,1.);
     gluLookAt(1.,-5.5,3,0.,0.,3.,0.,0.,1.);
     glPushMatrix();
 
@@ -321,14 +335,15 @@ void SceneWidget::paintGL() {
     glPopMatrix();
     glPopMatrix();
 
+    // draw our character in the scene
     glPushMatrix();
     glScalef(1.5, 1.5, 1.5);
-    glRotatef(90, 1, 0, 0);
-    glTranslatef(0,0,-1);
-    glRotatef(75, 0, 1, 0);
-
-    glDisable(GL_BLEND);
-    // glDisable(GL_LIGHTING);
+    if (proof_of_orbit) {
+        glRotatef(orbit_angle,0,0,1);
+        orbit_angle -= 1;
+    }
+    glTranslatef(0,1,0);
+    glRotatef(-15,0,0,1);
     character();
     glPopMatrix();
 

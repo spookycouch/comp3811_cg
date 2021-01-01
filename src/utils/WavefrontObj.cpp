@@ -5,7 +5,6 @@
 #include <string.h>
 #include <GL/glu.h>
 
-#include <iostream>
 
 
 WavefrontObj::WavefrontObj() {
@@ -104,8 +103,6 @@ void WavefrontObj::load_mtl(std::string path) {
             mtl_struct->image_index = images->size();
 
             images->push_back(new Image(mtl_struct->path));
-
-            std::cout << mtl_struct->path << std::endl;
         }
     }
 
@@ -248,8 +245,6 @@ void WavefrontObj::load(std::string path) {
 void WavefrontObj::draw() {
     for (std::vector<wavefrontSubObj>::iterator sub_object = sub_objects->begin(); sub_object != sub_objects->end(); ++sub_object) {
         wavefrontMtl* mtl = sub_object->mtl;
-        // std::cout << sub_object->name << " " << mtl->name << " " << mtl->image_index << " " << mtl->path << std::endl;
-        // std::cout << mtl->name << " " << mtl->path.size() << std::endl;
 
         if (mtl->path.size()) {
             Image* texture = images->at(mtl->image_index);
@@ -260,8 +255,6 @@ void WavefrontObj::draw() {
         glMaterialfv(GL_FRONT, GL_DIFFUSE,  mtl->diffuse);
         glMaterialfv(GL_FRONT, GL_SPECULAR, mtl->specular);
         glMaterialf(GL_FRONT, GL_SHININESS, mtl->shininess);
-
-        // std::cout << texture->Width() << " " << texture->Height() << std::endl;
 
         for (uint face_index=0; face_index < sub_object->face_vertices.size(); ++face_index) {
             glBegin(GL_POLYGON);
@@ -275,8 +268,8 @@ void WavefrontObj::draw() {
                 std::vector<float> texture = textures->at(t - 1);
                 std::vector<float> normal = normals->at(n - 1);
                 glTexCoord3f(texture.at(0), texture.at(1), texture.at(2));
-                glVertex3f(vertex.at(0), vertex.at(1), vertex.at(2));
                 glNormal3f(normal.at(0), normal.at(1), normal.at(2));
+                glVertex3f(vertex.at(0), vertex.at(1), vertex.at(2));
             }
 
             glEnd();

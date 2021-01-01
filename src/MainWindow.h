@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QTimer>
 #include "SceneWidget.h"
 
@@ -31,6 +32,11 @@ class MainWindow: public QWidget {
     QSlider* background_speed_slider;
     QLabel* background_tex_label;
     QComboBox* background_tex_combobox;
+    QLabel* rocking_chair_speed_label;
+    QSlider* rocking_chair_speed_slider;
+    QLabel* head_vibrate_speed_label;
+    QSlider* head_vibrate_speed_slider;
+    QCheckBox* proof_of_orbit_checkbox;
 
     QTimer* timer;
 };

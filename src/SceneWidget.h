@@ -13,7 +13,7 @@ class SceneWidget: public QGLWidget {
     /** Constructor
      *
      **/
-    SceneWidget(QWidget *parent);
+    SceneWidget();
 
 
     private:
@@ -61,7 +61,9 @@ class SceneWidget: public QGLWidget {
     void set_light_bulb_amplitude(int value);
     void set_background_index(int index);
     void set_background_speed(int value);
-
+    void set_rocking_chair_speed(int value);
+    void set_head_vibrate_speed(int value);
+    void set_proof_of_orbit(int state);
 
     private:
     // wavefront objects
@@ -75,6 +77,12 @@ class SceneWidget: public QGLWidget {
     float light_bulb_time = 0.0;
     float background_rotation = 0.0;
     float background_speed = 1.0;
+    float rocking_chair_time = 0.0;
+    float rocking_chair_speed = 0.075;
+    float head_vibrate_time = 0.0;
+    float head_vibrate_speed = 0.6;
+    bool proof_of_orbit = false;
+    float orbit_angle = 0;
 
     // textures used in the scene
     Image* wall_texture;
