@@ -7,7 +7,23 @@
 
 
 
-SceneWidget::SceneWidget(){}
+SceneWidget::SceneWidget() {
+    light_bulb_angle        = 0;
+    light_bulb_amplitude    = 0;
+    light_bulb_speed        = 0;
+    light_bulb_time         = 0;
+    background_rotation     = 0;
+    background_speed        = 0;
+    rocking_chair_time      = 0;
+    rocking_chair_speed     = 0;
+    rocking_chair_angle     = 0;
+    head_vibrate_time       = 0;
+    head_vibrate_speed      = 0;
+    head_vibrate_angle      = 0;
+    proof_of_orbit          = 0;
+    orbit_angle             = 0;
+    bg_index = 0;
+}
 
 void SceneWidget::initializeGL() {
     glClearColor(0,0,0,0);

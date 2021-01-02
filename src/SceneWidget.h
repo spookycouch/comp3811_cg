@@ -76,26 +76,26 @@ class SceneWidget: public QGLWidget {
     WavefrontObj head;
 
     // variables to be adjusted via Qt
-    float light_bulb_angle      = 0;
-    float light_bulb_amplitude  = 0;
-    float light_bulb_speed      = 0;
-    float light_bulb_time       = 0;
-    float background_rotation   = 0;
-    float background_speed      = 0;
-    float rocking_chair_time    = 0;
-    float rocking_chair_speed   = 0;
-    float rocking_chair_angle   = 0;
-    float head_vibrate_time     = 0;
-    float head_vibrate_speed    = 0;
-    float head_vibrate_angle    = 0;
-    bool proof_of_orbit         = 0;
-    float orbit_angle           = 0;
+    float light_bulb_angle;
+    float light_bulb_amplitude;
+    float light_bulb_speed;
+    float light_bulb_time;
+    float background_rotation;
+    float background_speed;
+    float rocking_chair_time;
+    float rocking_chair_speed;
+    float rocking_chair_angle;
+    float head_vibrate_time;
+    float head_vibrate_speed;
+    float head_vibrate_angle;
+    bool proof_of_orbit;
+    float orbit_angle;
 
     // textures used in the scene
     Image* wall_texture;
     Image* wood_texture;
     std::vector<Image*> bg_textures;
-    int bg_index = 0;
+    int bg_index;
 
 
     protected:
