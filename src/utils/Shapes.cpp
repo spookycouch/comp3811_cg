@@ -35,20 +35,20 @@ void square(const materialStruct* p_front, int n_div, textureTransform* tex_tran
             // create polygon
             glBegin(GL_POLYGON);
                 glTexCoord2f(tx0, ty0);
-                glVertex3f(x0,y0,0);
                 glNormal3f(0,0,1);
+                glVertex3f(x0,y0,0);
 
                 glTexCoord2f(tx1, ty0);
-                glVertex3f(x1,y0,0);
                 glNormal3f(0,0,1);
+                glVertex3f(x1,y0,0);
 
                 glTexCoord2f(tx1, ty1);
-                glVertex3f(x1,y1,0);
                 glNormal3f(0,0,1);
+                glVertex3f(x1,y1,0);
 
                 glTexCoord2f(tx0, ty1);
-                glVertex3f(x0,y1,0);
                 glNormal3f(0,0,1);
+                glVertex3f(x0,y1,0);
             glEnd();
         }
 }
@@ -115,20 +115,20 @@ void cylinder(const materialStruct* p_front, int N, int n_div) {
             float z = z_min + i_z*delta_z;
             glBegin(GL_POLYGON);
                 glTexCoord2f(tx0, ty0);
-                glVertex3f(x0,y0,z);
                 glNormal3f(-x0,-y0,0);
+                glVertex3f(x0,y0,z);
 
                 glTexCoord2f(tx0, ty1);
-                glVertex3f(x0,y0,z+delta_z);
                 glNormal3f(-x0,-y0,0);
+                glVertex3f(x0,y0,z+delta_z);
 
                 glTexCoord2f(tx1, ty1);
-                glVertex3f(x1,y1,z+delta_z);
                 glNormal3f(-x1,-y1,0);
+                glVertex3f(x1,y1,z+delta_z);
 
                 glTexCoord2f(tx1, ty0);
-                glVertex3f(x1,y1,z);
                 glNormal3f(-x1,-y1,0);
+                glVertex3f(x1,y1,z);
             glEnd();
         }
     }
