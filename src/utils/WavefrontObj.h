@@ -26,13 +26,37 @@ typedef struct wavefrontSubObj {
 
 class WavefrontObj {
     public:
-    WavefrontObj();
-    ~WavefrontObj();
+    WavefrontObj(); //constructor
+    ~WavefrontObj(); // destructor
+
+    /** Load .MTL files
+     * Parse material textures and their ambient,
+     * diffuse and specular values.
+     * A wavefrontMtl struct is created for each
+     * material parsed.
+     *
+     */
     void load_mtl(std::string path);
+
+    /** Load .OBJ files
+     * Parse vertex, texture and normal coordinates.
+     * A wavefrontSubObj struct is created for each
+     * sub-object parsed.
+     *
+     */
     void load(std::string path);
+
+    /** Draw
+     * Draw each stored sub-object using their
+     * corresponding vertex, normal, material
+     * and texture values.
+     *
+     */
     void draw();
 
+
     private:
+    // data structures to store object
     std::vector<std::vector<float> >* vertices;
     std::vector<std::vector<float> >* textures;
     std::vector<std::vector<float> >* normals;

@@ -6,7 +6,6 @@
 #include <GL/glu.h>
 
 
-
 WavefrontObj::WavefrontObj() {
     vertices = new std::vector<std::vector<float> >();
     textures = new std::vector<std::vector<float> >();
@@ -52,6 +51,7 @@ void WavefrontObj::load_mtl(std::string path) {
             mtl_struct->name = std::string(name);
         }
 
+
         // parse ambient
         if (!strcmp(token, "Ka")) {
             float r,g,b;
@@ -65,6 +65,7 @@ void WavefrontObj::load_mtl(std::string path) {
             mtl_struct->ambient[2] = b;
             mtl_struct->ambient[3] = 1.0;
         }
+
 
         // parse diffuse
         if (!strcmp(token, "Kd")) {
@@ -80,6 +81,7 @@ void WavefrontObj::load_mtl(std::string path) {
             mtl_struct->diffuse[3] = 1.0;
         }
 
+
         // parse specular
         if (!strcmp(token, "Ks")) {
             float r,g,b;
@@ -94,6 +96,7 @@ void WavefrontObj::load_mtl(std::string path) {
             mtl_struct->specular[3] = 1.0;
         }
 
+
         // parse material library
         if (!strcmp(token, "map_Kd")) {
             char path[128];
@@ -107,7 +110,7 @@ void WavefrontObj::load_mtl(std::string path) {
     }
 
 
-    // just in case
+    // push back the current material
     if (mtl_struct)
         materials->insert(std::pair<std::string, wavefrontMtl>(mtl_struct->name, *mtl_struct));
 }
@@ -236,29 +239,36 @@ void WavefrontObj::load(std::string path) {
     }
 
 
-    // just in case 
+    // push back the current sub-object
     if (sub_object)
         sub_objects->push_back(*sub_object);
 }
 
 
 void WavefrontObj::draw() {
+    // for each sub-object
     for (std::vector<wavefrontSubObj>::iterator sub_object = sub_objects->begin(); sub_object != sub_objects->end(); ++sub_object) {
         wavefrontMtl* mtl = sub_object->mtl;
 
+        // if the sub-object's material has a path,
+        // enable textures and load the corresponding image
         if (mtl->path.size()) {
             Image* texture = images->at(mtl->image_index);
             glEnable(GL_TEXTURE_2D);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->Width(), texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture->imageField());
         }
+
+        // set material properties
         glMaterialfv(GL_FRONT, GL_AMBIENT,  mtl->ambient);
         glMaterialfv(GL_FRONT, GL_DIFFUSE,  mtl->diffuse);
         glMaterialfv(GL_FRONT, GL_SPECULAR, mtl->specular);
         glMaterialf(GL_FRONT, GL_SHININESS, mtl->shininess);
 
+        // for each polygon
         for (uint face_index=0; face_index < sub_object->face_vertices.size(); ++face_index) {
             glBegin(GL_POLYGON);
 
+            // set vertex, normal and texture coordinates
             for (uint point_index=0; point_index < sub_object->face_vertices.at(face_index).size(); ++point_index) {
                 int v = sub_object->face_vertices.at(face_index).at(point_index);
                 int t = sub_object->face_textures.at(face_index).at(point_index);
