@@ -15,13 +15,13 @@ void SceneWidget::initializeGL() {
     // load textures
     wall_texture = new Image("textures/Finishes.Painting.Paint.White.Flaking.jpg");
     wood_texture = new Image("textures/wild_cherry_mysticBrown.png");
-    bg_textures.push_back(new Image("textures/dark_woods.jpg"));
+    bg_textures.push_back(new Image("textures/dark_woods.jpeg"));
     bg_textures.push_back(new Image("textures/Marc_Dekamps.ppm"));
     bg_textures.push_back(new Image("textures/Mercator-projection.ppm"));
 
     // load .obj files
-    body.load("textures/body.obj");
-    head.load("textures/head.obj");
+    body.load("models/body.obj");
+    head.load("models/head.obj");
 }
 
 void SceneWidget::resizeGL(int w, int h) {
@@ -245,8 +245,8 @@ void SceneWidget::character() {
     glRotatef(rocking_chair_angle,0,1,0);
     body.draw();
 
-    // head is at z=2.1 units
-    glTranslatef(0,0,2.1);
+    // head is at z=2.15 units
+    glTranslatef(0,0,2.15);
 
     glRotatef(head_vibrate_angle,0,0,1);
     glRotatef(head_vibrate_angle,1,0,0);
@@ -258,8 +258,12 @@ void SceneWidget::shadow() {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glColor3f(0,0,0);
-    float shear_chair = 0.5 * sin(rocking_chair_time);
-    float shear_light = 0.5 * sin(light_bulb_time);
+
+    float character_angle_rad = (orbit_angle - 15) * M_PI/180.0;
+
+    // TODO: explain
+    float shear_light = cos(character_angle_rad) * sin(light_bulb_time) * light_bulb_amplitude/100.0;
+    float shear_chair = 0.5 * (sin(rocking_chair_time) + 1) + sin(character_angle_rad) * sin(light_bulb_time) * light_bulb_amplitude/100.0;
     GLfloat shadow_transform[16] = {1,0,0,0,
                                     0,1,0,0,
                                     shear_chair,shear_light,0,0,
@@ -358,10 +362,9 @@ void SceneWidget::paintGL() {
     // set character pose
     glPushMatrix();
     glScalef(0.25, 0.25, 0.25);
-    if (proof_of_orbit) {
-        glRotatef(orbit_angle,0,0,1);
+    if (proof_of_orbit)
         orbit_angle -= 1;
-    }
+    glRotatef(orbit_angle,0,0,1);
     glTranslatef(0,1,0);
     glRotatef(75,0,0,1);
     // draw the character's shadow

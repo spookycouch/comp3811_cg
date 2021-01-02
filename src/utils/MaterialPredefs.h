@@ -38,7 +38,7 @@ static materialStruct warmLightMaterials = {
 };
 
 static materialStruct backgroundMaterials = {
-    { 0.35, 0.35, 0.35, 1.0},
+    { 1, 1, 1, 1.0},
     { 0, 0, 0, 1.0},
     { 0, 0, 0, 1.0},
     100.0
