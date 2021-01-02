@@ -303,6 +303,14 @@ void SceneWidget::set_proof_of_orbit(int state) {
     proof_of_orbit = state;
 }
 
+void SceneWidget::reset_geometry() {
+    light_bulb_time = 0;
+    background_rotation = 0;
+    rocking_chair_time = 0;
+    head_vibrate_time = 0;
+    orbit_angle = 0;
+}
+
 /** Add angle
  * add two angles and return the normalised
  * value between 0 and 2*PI radians.

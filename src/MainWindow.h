@@ -8,10 +8,12 @@
 #include <QSlider>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QPushButton>
 #include <QTimer>
 #include "SceneWidget.h"
 
 class MainWindow: public QWidget {
+    Q_OBJECT
     public:
     MainWindow(QWidget *parent);
     ~MainWindow();
@@ -37,8 +39,17 @@ class MainWindow: public QWidget {
     QLabel* head_vibrate_speed_label;
     QSlider* head_vibrate_speed_slider;
     QCheckBox* proof_of_orbit_checkbox;
+    QPushButton* reset_button;
 
     QTimer* timer;
+
+
+    public slots:
+    void reset();
+
+
+    signals:
+    void reset_geometry();
 };
 
 #endif

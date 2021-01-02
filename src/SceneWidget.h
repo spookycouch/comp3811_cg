@@ -68,6 +68,7 @@ class SceneWidget: public QGLWidget {
     void set_rocking_chair_speed(int value);
     void set_head_vibrate_speed(int value);
     void set_proof_of_orbit(int state);
+    void reset_geometry();
 
     private:
     // wavefront objects
@@ -75,20 +76,20 @@ class SceneWidget: public QGLWidget {
     WavefrontObj head;
 
     // variables to be adjusted via Qt
-    float light_bulb_angle = 0;
-    float light_bulb_amplitude = 60;
-    float light_bulb_speed = 0.05;
-    float light_bulb_time = 0.0;
-    float background_rotation = 0.0;
-    float background_speed = 1.0;
-    float rocking_chair_time = 0.0;
-    float rocking_chair_speed = 0.075;
-    float rocking_chair_angle = 0.0;
-    float head_vibrate_time = 0.0;
-    float head_vibrate_speed = 0.6;
-    float head_vibrate_angle = 0.0;
-    bool proof_of_orbit = false;
-    float orbit_angle = 0;
+    float light_bulb_angle      = 0;
+    float light_bulb_amplitude  = 0;
+    float light_bulb_speed      = 0;
+    float light_bulb_time       = 0;
+    float background_rotation   = 0;
+    float background_speed      = 0;
+    float rocking_chair_time    = 0;
+    float rocking_chair_speed   = 0;
+    float rocking_chair_angle   = 0;
+    float head_vibrate_time     = 0;
+    float head_vibrate_speed    = 0;
+    float head_vibrate_angle    = 0;
+    bool proof_of_orbit         = 0;
+    float orbit_angle           = 0;
 
     // textures used in the scene
     Image* wall_texture;
