@@ -24,18 +24,22 @@ MainWindow::MainWindow(QWidget *parent)
      */
     QVBoxLayout * user_layout_ = new QVBoxLayout();
 
+    // light intensity
+    light_intensity_label = new QLabel("Light intensity:");
+    light_intensity_slider = new QSlider(Qt::Horizontal);
+    light_intensity_slider->setRange(0,20);
+    connect(light_intensity_slider, &QSlider::valueChanged, scene_widget_, &SceneWidget::set_light_diffuse);
+
     // light bulb amplitude
     light_bulb_amp_label = new QLabel("Light bulb amplitude:");
     light_bulb_amp_slider = new QSlider(Qt::Horizontal);
     light_bulb_amp_slider->setRange(0,85);
-    // connect(light_bulb_amp_slider, SIGNAL(sliderMoved(int)), scene_widget_, SLOT(set_light_bulb_amplitude(int)));
     connect(light_bulb_amp_slider, &QSlider::valueChanged, scene_widget_, &SceneWidget::set_light_bulb_amplitude);
 
     // light bulb period
     light_bulb_period_label = new QLabel("Light bulb period:");
     light_bulb_period_slider = new QSlider(Qt::Horizontal);
     light_bulb_period_slider->setRange(10,30);
-    // connect(light_bulb_period_slider, SIGNAL(sliderMoved(int)), scene_widget_, SLOT(set_light_bulb_period(int)));
     connect(light_bulb_period_slider, &QSlider::valueChanged, scene_widget_, &SceneWidget::set_light_bulb_period);
 
     // background_texture
@@ -65,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(head_vibrate_speed_slider, &QSlider::valueChanged, scene_widget_, &SceneWidget::set_head_vibrate_speed);
 
     // proof of orbit
-    proof_of_orbit_checkbox = new QCheckBox("Proof of orbit");
+    proof_of_orbit_checkbox = new QCheckBox("Orbit the room");
     connect(proof_of_orbit_checkbox, &QCheckBox::stateChanged, scene_widget_, &SceneWidget::set_proof_of_orbit);
 
     // reset button
@@ -74,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(reset_button, &QPushButton::released, this, &MainWindow::reset);
 
     // build user menu
+    user_layout_->addWidget(light_intensity_label);
+    user_layout_->addWidget(light_intensity_slider);
     user_layout_->addWidget(light_bulb_amp_label);
     user_layout_->addWidget(light_bulb_amp_slider);
     user_layout_->addWidget(light_bulb_period_label);
@@ -103,6 +109,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow(){}
 
 void MainWindow::reset() {
+    light_intensity_slider->setValue(10);
     light_bulb_amp_slider->setValue(60);
     light_bulb_period_slider->setValue(20);
     background_tex_combobox->setCurrentIndex(0);

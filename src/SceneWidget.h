@@ -68,6 +68,7 @@ class SceneWidget: public QGLWidget {
     /** Setters
      * for Qt interface.
     **/
+    void set_light_diffuse(int value);
     void set_light_bulb_period(int value);
     void set_light_bulb_amplitude(int value);
     void set_background_index(int index);

@@ -312,6 +312,12 @@ void SceneWidget::shadow() {
     glPopMatrix();
 }
 
+void SceneWidget::set_light_diffuse(int value) {
+    GLfloat i = value/10.0;
+    GLfloat light_diffuse[] = {i, i, i, 1};
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+}
+
 void SceneWidget::set_light_bulb_period(int value) {
     light_bulb_speed = 1.0/value;
 }

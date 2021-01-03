@@ -26,6 +26,8 @@ class MainWindow: public QWidget {
     SceneWidget* scene_widget_;
 
     QVBoxLayout* user_layout_;
+    QLabel* light_intensity_label;
+    QSlider* light_intensity_slider;
     QLabel* light_bulb_amp_label;
     QSlider* light_bulb_amp_slider;
     QLabel* light_bulb_period_label;
