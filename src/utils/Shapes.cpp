@@ -2,6 +2,7 @@
 #include <cmath>
 
 void square(const materialStruct* p_front, int n_div, textureTransform* tex_transform) {
+    // set material properties
     glMaterialfv(GL_FRONT, GL_AMBIENT,  p_front->ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE,  p_front->diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR, p_front->specular);
@@ -86,7 +87,8 @@ void cube(const materialStruct* p_front) {
 }
 
 
-void cylinder(const materialStruct* p_front, int N, int n_div) {
+void cylinder_inside(const materialStruct* p_front, int N, int n_div) {
+    // set material properties
     glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR,   p_front->specular);
@@ -111,35 +113,37 @@ void cylinder(const materialStruct* p_front, int N, int n_div) {
             tx1 = 0;
             ty1 = 1;
 
-            // NOTE: drawn clockwise to face inwards
+            // NOTE: negated normals to face inwards
             float z = z_min + i_z*delta_z;
             glBegin(GL_POLYGON);
                 glTexCoord2f(tx0, ty0);
                 glNormal3f(-x0,-y0,0);
                 glVertex3f(x0,y0,z);
 
-                glTexCoord2f(tx0, ty1);
-                glNormal3f(-x0,-y0,0);
-                glVertex3f(x0,y0,z+delta_z);
+                glTexCoord2f(tx1, ty0);
+                glNormal3f(-x1,-y1,0);
+                glVertex3f(x1,y1,z);
 
                 glTexCoord2f(tx1, ty1);
                 glNormal3f(-x1,-y1,0);
                 glVertex3f(x1,y1,z+delta_z);
 
-                glTexCoord2f(tx1, ty0);
-                glNormal3f(-x1,-y1,0);
-                glVertex3f(x1,y1,z);
+                glTexCoord2f(tx0, ty1);
+                glNormal3f(-x0,-y0,0);
+                glVertex3f(x0,y0,z+delta_z);
             glEnd();
         }
     }
 }
 
-void sphere(const materialStruct* p_front){
-
+void sphere_inside(const materialStruct* p_front){
+    // set material properties
     glMaterialfv(GL_FRONT, GL_AMBIENT,    p_front->ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE,    p_front->diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR,   p_front->specular);
     glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
+
+    // draw a gluSphere with the inside quadric orientation
     GLUquadric * quad = gluNewQuadric();
     gluQuadricOrientation(quad, GLU_INSIDE);
     gluSphere(quad, 1, 32, 32);

@@ -6,6 +6,10 @@
 #include <map>
 #include "utils/Image.h"
 
+/** Wavefront MTL
+ * stores material and texture properties
+ * of a parsed Wavefront material
+**/
 typedef struct wavefrontMtl {
     std::string name;
     std::string path;
@@ -16,6 +20,10 @@ typedef struct wavefrontMtl {
     GLfloat shininess;
 }wavefrontMtl;
 
+/** Wavefront sub-object
+ * stores polygon vertices, textures and normals
+ * of a parsed Wavefront object.
+**/
 typedef struct wavefrontSubObj {
     std::string name;
     wavefrontMtl* mtl;

@@ -17,7 +17,7 @@ typedef struct materialStruct {
 
 /** Texture transform
  * translation and scale for mapping
- * texture points to vertices.
+ * texture points to vertices in square().
 **/
 typedef struct textureTransform {
     float translate[2];
@@ -38,14 +38,16 @@ void cube(const materialStruct* p_front);
 
 /** Cylinder
  * taken from COMP3811 tutorials
- * a cylinder of origin at the centre with z=0
+ * a cylinder of origin at the centre with z=0.
+ * normals face inwards to reflect contained light source.
 **/
-void cylinder(const materialStruct* p_front, int N=6, int n_div=1);
+void cylinder_inside(const materialStruct* p_front, int N=6, int n_div=1);
 
 
 /** Sphere
- * GLUT sphere of origin at its centre
+ * GLUT sphere of origin at its centre.
+ * normals face inwards to reflect contained light source.
 **/
-void sphere(const materialStruct* p_front );
+void sphere_inside(const materialStruct* p_front);
 
 #endif

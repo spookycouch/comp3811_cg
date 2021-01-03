@@ -20,21 +20,24 @@ class SceneWidget: public QGLWidget {
     /** Walls for the setting.
      * Made up of 2D squares.
      * Uses materials and textures.
-     */
+    **/
     void walls();
 
     /** Window for the setting.
      * Made up of 3D cubes.
      * Uses materials and textures.
-     */
+    **/
     void window();
 
     /** Light bulb for the setting.
      * Made up of cylinders and spheres.
      * Uses materials.
-     */
+    **/
     void light_bulb();
 
+    /** Floor for the setting.
+     * a single textured square with material.
+    **/
     void floor();
 
     /** House
@@ -54,13 +57,17 @@ class SceneWidget: public QGLWidget {
      */
     void character();
 
+    /** Shadow
+     * Apply shear and scale transforms
+     * to draw a shadow of the character.
+    **/
     void shadow();
 
 
     public slots:
     /** Setters
      * for Qt interface.
-     */
+    **/
     void set_light_bulb_period(int value);
     void set_light_bulb_amplitude(int value);
     void set_background_index(int index);

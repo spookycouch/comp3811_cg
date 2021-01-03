@@ -6,8 +6,8 @@
 #include <cmath>
 
 
-
 SceneWidget::SceneWidget() {
+    // initialise members to 0
     light_bulb_angle        = 0;
     light_bulb_amplitude    = 0;
     light_bulb_speed        = 0;
@@ -38,11 +38,8 @@ void SceneWidget::initializeGL() {
     // load .obj files
     body.load("models/body.obj");
     head.load("models/head.obj");
-}
 
-void SceneWidget::resizeGL(int w, int h) {
-    glViewport(0, 0, w, h);
-
+    // lighting parameters
     glEnable(GL_LIGHTING);
     GLfloat light_diffuse[] = {1, 1, 1, 1};
     GLfloat light_specular[] = {1, 1, 1, 1};
@@ -70,16 +67,21 @@ void SceneWidget::resizeGL(int w, int h) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
 
+void SceneWidget::resizeGL(int w, int h) {
+    glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(-1.0,1.0, -1.0,1.0, 1.5,20.0);
 }
 
 void SceneWidget::floor() {
+    // load floor texture
     glEnable(GL_TEXTURE_2D);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_texture->Width(), wood_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture->imageField());
 
+    // floor
     glPushMatrix();
     glRotatef(90,0,0,1);
     glTranslatef(0,-1,0);
@@ -93,7 +95,7 @@ void SceneWidget::walls() {
     glEnable(GL_TEXTURE_2D);
     glPushMatrix(); // D0
 
-    // walls
+    // load wall texture
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wall_texture->Width(), wall_texture->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, wall_texture->imageField());
     // left wall
     glRotatef(90.,1,0,0);
@@ -220,7 +222,7 @@ void SceneWidget::light_bulb() {
     glRotatef(light_bulb_angle, 0, 1, 0);
     glPushMatrix(); // D1
     glScalef(0.005,0.005,0.3);
-    cylinder(&blackPlasticMaterials);
+    cylinder_inside(&blackPlasticMaterials);
     glPopMatrix(); // D1
 
     // draw the light (alpha blend)
@@ -228,12 +230,12 @@ void SceneWidget::light_bulb() {
     glPushMatrix(); // D1
     glScalef(0.01,0.01,0.03);
     glTranslatef(0,0,1);
-    sphere(&warmLightMaterials);
+    sphere_inside(&warmLightMaterials);
     // draw the glass bulb (alpha blend)
     glPopMatrix(); // D1
     glScalef(0.025,0.025,0.04);
     glTranslatef(0,0,1);
-    sphere(&glassMaterials);
+    sphere_inside(&glassMaterials);
 
     glPopMatrix(); // D0
 }
@@ -245,25 +247,30 @@ void SceneWidget::house() {
 }
 
 void SceneWidget::background() {
-    glPushMatrix();
+    // load the selected background image
     glEnable(GL_TEXTURE_2D);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bg_textures[bg_index]->Width(), bg_textures[bg_index]->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bg_textures[bg_index]->imageField());
 
+    // draw a large textured cylinder
+    glPushMatrix();
     glRotatef(background_rotation, 0, 0, 1);
     glTranslatef(0,0,-0.2);
     glScalef(1.5,1.5,1.5);
-    cylinder(&backgroundMaterials);
-    glDisable(GL_TEXTURE_2D);
+    cylinder_inside(&backgroundMaterials);
     glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
 }
 
 void SceneWidget::character() {
+    // rotate along y-axis for rocking chair
     glRotatef(rocking_chair_angle,0,1,0);
     body.draw();
 
     // head is at z=2.15 units
     glTranslatef(0,0,2.15);
 
+    // rotate along x and z axes for head vibration
     glRotatef(head_vibrate_angle,0,0,1);
     glRotatef(head_vibrate_angle,1,0,0);
     head.draw();
@@ -271,20 +278,34 @@ void SceneWidget::character() {
 
 void SceneWidget::shadow() {
     glPushMatrix();
+
+    // stop materials and z-fighting
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
-    glColor3f(0,0,0);
 
+    // calculate current angle of character
     float character_angle_rad = (orbit_angle - 15) * M_PI/180.0;
 
-    // TODO: explain
-    float shear_light = cos(character_angle_rad) * sin(light_bulb_time) * light_bulb_amplitude/100.0;
-    float shear_chair = 0.5 * (sin(rocking_chair_time) + 1) + sin(character_angle_rad) * sin(light_bulb_time) * light_bulb_amplitude/100.0;
+    // shear when the light is swinging orthogonal to the character.
+    float shear_light = cos(character_angle_rad) * light_bulb_angle/100.0;
+
+    // shear from chair rocking and when the light
+    // is swinging parallel to the character.
+    float shear_chair = 0.5 * (sin(rocking_chair_time) + 1) + sin(character_angle_rad) * light_bulb_angle/100.0;
+
+    /** Shadow transformation
+     * mathematical model to create character's shadow.
+     * performs z-shear in x,y axes and flattens the z-axis.
+     *
+     */
     GLfloat shadow_transform[16] = {1,0,0,0,
                                     0,1,0,0,
                                     shear_chair,shear_light,0,0,
                                     0,0,0,1};
+
+    // apply transform and draw the shadow in black (very hitchcock)
     glMultMatrixf(shadow_transform);
+    glColor3f(0,0,0);
     character();
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
@@ -361,6 +382,9 @@ void SceneWidget::paintGL() {
     // set head angle
     head_vibrate_time = add_angle(head_vibrate_time, head_vibrate_speed);
     head_vibrate_angle = sin(head_vibrate_time) * 10;
+    // set orbit angle
+    if (proof_of_orbit)
+        orbit_angle -= 1;
 
     // scale by 6
     glScalef(6,6,6);
@@ -377,7 +401,7 @@ void SceneWidget::paintGL() {
     // draw the "background"
     background();
 
-    // floor centered at 0,0,0
+    // draw floor centered at (0,0,0)
     glPushMatrix();
     glTranslatef(-0.5,-0.5,0.);
     floor();
@@ -386,20 +410,18 @@ void SceneWidget::paintGL() {
     // set character pose
     glPushMatrix();
     glScalef(0.25, 0.25, 0.25);
-    if (proof_of_orbit)
-        orbit_angle -= 1;
     glRotatef(orbit_angle,0,0,1);
     glTranslatef(0,1,0);
-    glRotatef(75,0,0,1);
+    glRotatef(75,0,0,1); // at an angle for atmosphere
     // draw the character's shadow
     shadow();
     // draw the character
-    // (0.1 units off the ground to account for rocking chair)
+    // (0.1 units off the ground to account for rocker shape)
     glTranslatef(0,0,0.1);
     character();
     glPopMatrix();
 
-    // house centered at 0,0,0
+    // draw house centered at (0,0,0)
     glTranslatef(-0.5,-0.5,0.);
     house();
 
