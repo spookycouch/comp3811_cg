@@ -105,6 +105,9 @@ class SceneWidget: public QGLWidget {
     std::vector<Image*> bg_textures;
     int bg_index;
 
+    // visual atmosphere
+    float character_tilt;
+
 
     protected:
     // OpenGL functions for init, resize and paint

@@ -22,7 +22,9 @@ SceneWidget::SceneWidget() {
     head_vibrate_angle      = 0;
     proof_of_orbit          = 0;
     orbit_angle             = 0;
-    bg_index = 0;
+    bg_index                = 0;
+    // tilt character by -15 degrees
+    character_tilt          = -15;
 }
 
 void SceneWidget::initializeGL() {
@@ -263,16 +265,16 @@ void SceneWidget::background() {
 }
 
 void SceneWidget::character() {
-    // rotate along y-axis for rocking chair
-    glRotatef(rocking_chair_angle,0,1,0);
+    // rotate along x-axis for rocking chair
+    glRotatef(rocking_chair_angle,1,0,0);
     body.draw();
 
     // head is at z=2.15 units
     glTranslatef(0,0,2.15);
 
-    // rotate along x and z axes for head vibration
+    // rotate along y and z axes for head vibration
+    glRotatef(head_vibrate_angle,0,1,0);
     glRotatef(head_vibrate_angle,0,0,1);
-    glRotatef(head_vibrate_angle,1,0,0);
     head.draw();
 }
 
@@ -284,14 +286,14 @@ void SceneWidget::shadow() {
     glDisable(GL_DEPTH_TEST);
 
     // calculate current angle of character
-    float character_angle_rad = (orbit_angle - 15) * M_PI/180.0;
+    float character_angle_rad = (orbit_angle + character_tilt) * M_PI/180.0;
 
     // shear when the light is swinging orthogonal to the character.
-    float shear_light = cos(character_angle_rad) * light_bulb_angle/100.0;
+    float shear_light = cos(character_angle_rad) * -light_bulb_angle/100.0;
 
     // shear from chair rocking and when the light
     // is swinging parallel to the character.
-    float shear_chair = 0.5 * (sin(rocking_chair_time) + 1) + sin(character_angle_rad) * light_bulb_angle/100.0;
+    float shear_chair = 0.5 * (-sin(rocking_chair_time) + 1) + sin(character_angle_rad) * light_bulb_angle/100.0;
 
     /** Shadow transformation
      * mathematical model to create character's shadow.
@@ -300,7 +302,7 @@ void SceneWidget::shadow() {
      */
     GLfloat shadow_transform[16] = {1,0,0,0,
                                     0,1,0,0,
-                                    shear_chair,shear_light,0,0,
+                                    shear_light,shear_chair,0,0,
                                     0,0,0,1};
 
     // apply transform and draw the shadow in black (very hitchcock)
@@ -418,12 +420,12 @@ void SceneWidget::paintGL() {
     glScalef(0.25, 0.25, 0.25);
     glRotatef(orbit_angle,0,0,1);
     glTranslatef(0,1,0);
-    glRotatef(75,0,0,1); // at an angle for atmosphere
+    glRotatef(character_tilt,0,0,1); // at an angle for atmosphere
     // draw the character's shadow
     shadow();
     // draw the character
-    // (0.1 units off the ground to account for rocker shape)
-    glTranslatef(0,0,0.1);
+    // (0.02 units off the ground to account for rocker shape)
+    glTranslatef(0,0,0.02);
     character();
     glPopMatrix();
 
