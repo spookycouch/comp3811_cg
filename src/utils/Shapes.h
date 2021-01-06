@@ -4,6 +4,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+
 /** Material
  * struct comprising phong
  * lighting values.
@@ -15,6 +16,7 @@ typedef struct materialStruct {
     GLfloat shininess;
 } materialStruct;
 
+
 /** Texture transform
  * translation and scale for mapping
  * texture points to vertices in square().
@@ -24,14 +26,23 @@ typedef struct textureTransform {
     float scale[2];
 } textureTransform;
 
+
 /** Square
  * a flat plane from x=0 to x=1, y=0 to y=1
+ *
+ * PARAMS:  p_front         material properties
+ *          n_div           number of sub-divisions
+ *          tex_transform   transform to apply to texture
+ *
 **/
 void square(const materialStruct* p_front, int n_div=1, textureTransform* tex_transform=0);
 
 
 /** Cube
- * GLUT solid cube of origin at the bottom left with z=0
+ * 9 outward-facing squares to form a cube.
+ *
+ * PARAMS:  p_front         material properties
+ *
 **/
 void cube(const materialStruct* p_front);
 
@@ -40,6 +51,11 @@ void cube(const materialStruct* p_front);
  * taken from COMP3811 tutorials
  * a cylinder of origin at the centre with z=0.
  * normals face inwards to reflect contained light source.
+ *
+ * PARAMS:  p_front         material properties
+ *          N               number of faces
+ *          n_div           number of height divisions
+ *
 **/
 void cylinder_inside(const materialStruct* p_front, int N=6, int n_div=1);
 
@@ -47,6 +63,9 @@ void cylinder_inside(const materialStruct* p_front, int N=6, int n_div=1);
 /** Sphere
  * GLUT sphere of origin at its centre.
  * normals face inwards to reflect contained light source.
+ *
+ * PARAMS:  p_front         material properties
+ *
 **/
 void sphere_inside(const materialStruct* p_front);
 

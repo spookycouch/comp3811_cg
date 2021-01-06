@@ -11,13 +11,13 @@ SceneWidget::SceneWidget() {
     light_bulb_angle        = 0;
     light_bulb_amplitude    = 0;
     light_bulb_speed        = 0;
-    light_bulb_time         = 0;
+    light_bulb_dist         = 0;
     background_rotation     = 0;
     background_speed        = 0;
-    rocking_chair_time      = 0;
+    rocking_chair_dist      = 0;
     rocking_chair_speed     = 0;
     rocking_chair_angle     = 0;
-    head_vibrate_time       = 0;
+    head_vibrate_dist       = 0;
     head_vibrate_speed      = 0;
     head_vibrate_angle      = 0;
     proof_of_orbit          = 0;
@@ -293,7 +293,7 @@ void SceneWidget::shadow() {
 
     // shear from chair rocking and when the light
     // is swinging parallel to the character.
-    float shear_chair = 0.5 * (-sin(rocking_chair_time) + 1) + sin(character_angle_rad) * light_bulb_angle/100.0;
+    float shear_chair = 0.5 * (-sin(rocking_chair_dist) + 1) + sin(character_angle_rad) * light_bulb_angle/100.0;
 
     /** Shadow transformation
      * mathematical model to create character's shadow.
@@ -349,10 +349,10 @@ void SceneWidget::set_proof_of_orbit(int state) {
 }
 
 void SceneWidget::reset_geometry() {
-    light_bulb_time = 0;
+    light_bulb_dist = 0;
     background_rotation = 0;
-    rocking_chair_time = 0;
-    head_vibrate_time = 0;
+    rocking_chair_dist = 0;
+    head_vibrate_dist = 0;
     orbit_angle = 0;
 }
 
@@ -380,16 +380,16 @@ void SceneWidget::paintGL() {
     gluLookAt(1.,-5.5,3,0.,0.,3.,0.,0.,1.);
 
     // set light bulb angle
-    light_bulb_time = add_angle(light_bulb_time, light_bulb_speed);
-    light_bulb_angle = sin(light_bulb_time) * light_bulb_amplitude;
+    light_bulb_dist = add_angle(light_bulb_dist, light_bulb_speed);
+    light_bulb_angle = sin(light_bulb_dist) * light_bulb_amplitude;
     // background rotation
     background_rotation += background_speed;
     // set rocking chair angle
-    rocking_chair_time = add_angle(rocking_chair_time, rocking_chair_speed);
-    rocking_chair_angle = sin(rocking_chair_time) * 20;
+    rocking_chair_dist = add_angle(rocking_chair_dist, rocking_chair_speed);
+    rocking_chair_angle = sin(rocking_chair_dist) * 20;
     // set head angle
-    head_vibrate_time = add_angle(head_vibrate_time, head_vibrate_speed);
-    head_vibrate_angle = sin(head_vibrate_time) * 10;
+    head_vibrate_dist = add_angle(head_vibrate_dist, head_vibrate_speed);
+    head_vibrate_angle = sin(head_vibrate_dist) * 10;
     // set orbit angle
     if (proof_of_orbit)
         orbit_angle -= 1;
@@ -417,10 +417,10 @@ void SceneWidget::paintGL() {
 
     // set character pose
     glPushMatrix();
-    glScalef(0.25, 0.25, 0.25);
     glRotatef(orbit_angle,0,0,1);
-    glTranslatef(0,1,0);
+    glTranslatef(0,0.25,0);
     glRotatef(character_tilt,0,0,1); // at an angle for atmosphere
+    glScalef(0.25, 0.25, 0.25);
     // draw the character's shadow
     shadow();
     // draw the character

@@ -87,13 +87,13 @@ class SceneWidget: public QGLWidget {
     float light_bulb_angle;
     float light_bulb_amplitude;
     float light_bulb_speed;
-    float light_bulb_time;
+    float light_bulb_dist;
     float background_rotation;
     float background_speed;
-    float rocking_chair_time;
+    float rocking_chair_dist;
     float rocking_chair_speed;
     float rocking_chair_angle;
-    float head_vibrate_time;
+    float head_vibrate_dist;
     float head_vibrate_speed;
     float head_vibrate_angle;
     bool proof_of_orbit;
