@@ -33,7 +33,7 @@ void SceneWidget::initializeGL() {
     // load textures
     wall_texture = new Image("textures/Finishes.Painting.Paint.White.Flaking.jpg");
     wood_texture = new Image("textures/wild_cherry_mysticBrown.png");
-    bg_textures.push_back(new Image("textures/dark_woods.jpeg"));
+    bg_textures.push_back(new Image("textures/dark_woods.jpg"));
     bg_textures.push_back(new Image("textures/Marc_Dekamps.ppm"));
     bg_textures.push_back(new Image("textures/Mercator-projection.ppm"));
 
